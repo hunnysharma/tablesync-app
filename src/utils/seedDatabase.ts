@@ -5,8 +5,10 @@ import { toast } from 'sonner';
 
 export async function seedDatabase() {
   try {
+    console.log('Starting database seeding process...');
+    
     // Insert tables
-    const { error: tablesError } = await supabase.from('tables').insert(
+    const { data: tablesData, error: tablesError } = await supabase.from('tables').insert(
       tables.map(table => ({
         id: table.id,
         number: table.number,
@@ -17,10 +19,15 @@ export async function seedDatabase() {
       }))
     );
     
-    if (tablesError) throw new Error(`Error seeding tables: ${tablesError.message}`);
+    if (tablesError) {
+      console.error('Error seeding tables:', tablesError);
+      throw new Error(`Error seeding tables: ${tablesError.message}`);
+    }
+    
+    console.log('Tables seeded successfully');
     
     // Insert categories
-    const { error: categoriesError } = await supabase.from('categories').insert(
+    const { data: categoriesData, error: categoriesError } = await supabase.from('categories').insert(
       categories.map(category => ({
         id: category.id,
         name: category.name,
@@ -29,10 +36,15 @@ export async function seedDatabase() {
       }))
     );
     
-    if (categoriesError) throw new Error(`Error seeding categories: ${categoriesError.message}`);
+    if (categoriesError) {
+      console.error('Error seeding categories:', categoriesError);
+      throw new Error(`Error seeding categories: ${categoriesError.message}`);
+    }
+    
+    console.log('Categories seeded successfully');
     
     // Insert menu items
-    const { error: menuItemsError } = await supabase.from('menu_items').insert(
+    const { data: menuItemsData, error: menuItemsError } = await supabase.from('menu_items').insert(
       menuItems.map(item => ({
         id: item.id,
         name: item.name,
@@ -45,11 +57,17 @@ export async function seedDatabase() {
       }))
     );
     
-    if (menuItemsError) throw new Error(`Error seeding menu items: ${menuItemsError.message}`);
+    if (menuItemsError) {
+      console.error('Error seeding menu items:', menuItemsError);
+      throw new Error(`Error seeding menu items: ${menuItemsError.message}`);
+    }
     
-    // Insert orders
+    console.log('Menu items seeded successfully');
+    
+    // Insert orders one by one
     for (const order of orders) {
-      const { error: orderError } = await supabase.from('orders').insert({
+      console.log(`Seeding order: ${order.id}`);
+      const { data: orderData, error: orderError } = await supabase.from('orders').insert({
         id: order.id,
         table_id: order.tableId,
         table_number: order.tableNumber,
@@ -63,10 +81,13 @@ export async function seedDatabase() {
         payment_method: order.paymentMethod || null
       });
       
-      if (orderError) throw new Error(`Error seeding orders: ${orderError.message}`);
+      if (orderError) {
+        console.error('Error seeding order:', orderError);
+        throw new Error(`Error seeding order: ${orderError.message}`);
+      }
       
       // Insert order items for each order
-      const { error: orderItemsError } = await supabase.from('order_items').insert(
+      const { data: orderItemsData, error: orderItemsError } = await supabase.from('order_items').insert(
         order.items.map(item => ({
           id: item.id,
           order_id: order.id,
@@ -80,12 +101,18 @@ export async function seedDatabase() {
         }))
       );
       
-      if (orderItemsError) throw new Error(`Error seeding order items: ${orderItemsError.message}`);
+      if (orderItemsError) {
+        console.error('Error seeding order items:', orderItemsError);
+        throw new Error(`Error seeding order items: ${orderItemsError.message}`);
+      }
     }
+    
+    console.log('Orders seeded successfully');
     
     // Insert bills
     for (const bill of bills) {
-      const { error: billError } = await supabase.from('bills').insert({
+      console.log(`Seeding bill: ${bill.id}`);
+      const { data: billData, error: billError } = await supabase.from('bills').insert({
         id: bill.id,
         order_id: bill.orderId,
         table_number: bill.tableNumber,
@@ -98,8 +125,14 @@ export async function seedDatabase() {
         paid_at: bill.paidAt?.toISOString() || null
       });
       
-      if (billError) throw new Error(`Error seeding bills: ${billError.message}`);
+      if (billError) {
+        console.error('Error seeding bill:', billError);
+        throw new Error(`Error seeding bill: ${billError.message}`);
+      }
     }
+    
+    console.log('Bills seeded successfully');
+    console.log('Database seeding completed successfully!');
     
     toast.success('Database seeded successfully!');
     return true;
