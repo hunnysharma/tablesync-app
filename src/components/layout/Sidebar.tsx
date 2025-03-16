@@ -1,3 +1,4 @@
+
 import {
   Sheet,
   SheetContent,
@@ -11,14 +12,14 @@ import { Home, Utensils, ShoppingBag, LayoutGrid, Receipt, Settings } from 'luci
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SidebarProps {
   className?: string;
 }
 
 export function Sidebar({ className }: SidebarProps) {
-  const { isMobile } = useMobile();
+  const isMobile = useIsMobile();
   
   return (
     <div className={cn("pb-12", className)}>
