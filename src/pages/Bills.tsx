@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import { Layout, PageHeader } from '@/components/layout/Layout';
-import { bills as initialBills } from '@/utils/dummyData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,12 +8,19 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Search, Printer, ChevronRight } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { fetchBills } from '@/services/billService';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Bills = () => {
   const navigate = useNavigate();
-  const [bills, setBills] = useState(initialBills);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  
+  const { data: bills = [], isLoading } = useQuery({
+    queryKey: ['bills'],
+    queryFn: fetchBills
+  });
   
   const filteredBills = bills.filter(bill => {
     // Filter by search (table number)
@@ -24,7 +30,7 @@ const Bills = () => {
     const matchesStatus = statusFilter === 'all' || bill.paymentStatus === statusFilter;
     
     return matchesSearch && matchesStatus;
-  }).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -70,7 +76,18 @@ const Bills = () => {
         </Select>
       </div>
       
-      {filteredBills.length > 0 ? (
+      {isLoading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-5">
+                <Skeleton className="h-6 w-32 mb-2" />
+                <Skeleton className="h-4 w-48" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : filteredBills.length > 0 ? (
         <div className="space-y-4">
           {filteredBills.map((bill) => (
             <Card 
@@ -102,7 +119,7 @@ const Bills = () => {
                     <div className="text-right">
                       <div className="font-medium">${bill.total.toFixed(2)}</div>
                       <div className="text-xs text-muted-foreground">
-                        Bill #{bill.id}
+                        Bill #{bill.id.substring(0, 8)}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">

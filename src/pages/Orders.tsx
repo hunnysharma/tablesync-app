@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import { Layout, PageHeader } from '@/components/layout/Layout';
-import { orders as initialOrders } from '@/utils/dummyData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,12 +8,19 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Search, Plus, Clock, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { fetchOrders } from '@/services/orderService';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Orders = () => {
   const navigate = useNavigate();
-  const [orders, setOrders] = useState(initialOrders);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  
+  const { data: orders = [], isLoading } = useQuery({
+    queryKey: ['orders'],
+    queryFn: fetchOrders
+  });
   
   const filteredOrders = orders.filter(order => {
     // Filter by search (table number)
@@ -24,7 +30,7 @@ const Orders = () => {
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     
     return matchesSearch && matchesStatus;
-  }).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   
   const formatTime = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -79,7 +85,18 @@ const Orders = () => {
         </Select>
       </div>
       
-      {filteredOrders.length > 0 ? (
+      {isLoading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-5">
+                <Skeleton className="h-6 w-32 mb-2" />
+                <Skeleton className="h-4 w-48" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : filteredOrders.length > 0 ? (
         <div className="space-y-4">
           {filteredOrders.map((order) => (
             <Card 

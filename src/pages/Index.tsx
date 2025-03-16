@@ -2,13 +2,14 @@
 import { useState, useEffect } from 'react';
 import { Layout, PageHeader } from '@/components/layout/Layout';
 import { TableGrid } from '@/components/dashboard/TableGrid';
-import { tables, orders } from '@/utils/dummyData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Button } from '@/components/ui/button';
-import { Table, Order } from '@/utils/types';
 import { ChevronRight, Users, Utensils, DollarSign, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { fetchTables } from '@/services/tableService';
+import { fetchOrders } from '@/services/orderService';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -19,23 +20,35 @@ const Dashboard = () => {
     totalSales: 0
   });
   
+  const { data: tables = [], isLoading: tablesLoading } = useQuery({
+    queryKey: ['tables'],
+    queryFn: fetchTables
+  });
+  
+  const { data: orders = [], isLoading: ordersLoading } = useQuery({
+    queryKey: ['orders'],
+    queryFn: fetchOrders
+  });
+  
   useEffect(() => {
-    // Calculate dashboard stats
-    const activeOrders = orders.filter(order => order.status === 'active').length;
-    const occupiedTables = tables.filter(table => table.status === 'occupied').length;
-    const availableTables = tables.filter(table => table.status === 'available').length;
-    const totalSales = orders.reduce((sum, order) => sum + order.total, 0);
-    
-    setStats({
-      activeOrders,
-      occupiedTables,
-      availableTables,
-      totalSales
-    });
-  }, []);
+    // Calculate dashboard stats from fetched data
+    if (tables.length > 0 && orders.length > 0) {
+      const activeOrders = orders.filter(order => order.status === 'active').length;
+      const occupiedTables = tables.filter(table => table.status === 'occupied').length;
+      const availableTables = tables.filter(table => table.status === 'available').length;
+      const totalSales = orders.reduce((sum, order) => sum + order.total, 0);
+      
+      setStats({
+        activeOrders,
+        occupiedTables,
+        availableTables,
+        totalSales
+      });
+    }
+  }, [tables, orders]);
   
   const recentOrders = [...orders]
-    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 3);
     
   const statCards = [
@@ -118,7 +131,7 @@ const Dashboard = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <TableGrid tables={tables.slice(0, 8)} />
+              <TableGrid tables={tables.slice(0, 8)} isLoading={tablesLoading} />
             </CardContent>
           </Card>
         </div>
@@ -139,35 +152,39 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentOrders.map((order) => (
-                  <div key={order.id} className="flex items-start justify-between p-3 bg-muted/50 rounded-lg animate-slide-in">
-                    <div>
-                      <div className="flex items-center">
-                        <span className="font-medium">Table {order.tableNumber}</span>
-                        <StatusBadge status={order.status} className="ml-2 text-xs" />
+                {ordersLoading ? (
+                  <p className="text-center text-muted-foreground py-6">
+                    Loading orders...
+                  </p>
+                ) : recentOrders.length > 0 ? (
+                  recentOrders.map((order) => (
+                    <div key={order.id} className="flex items-start justify-between p-3 bg-muted/50 rounded-lg animate-slide-in">
+                      <div>
+                        <div className="flex items-center">
+                          <span className="font-medium">Table {order.tableNumber}</span>
+                          <StatusBadge status={order.status} className="ml-2 text-xs" />
+                        </div>
+                        <div className="text-sm text-muted-foreground mt-1">
+                          {order.items.length} {order.items.length === 1 ? 'item' : 'items'} · ${order.total.toFixed(2)}
+                        </div>
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        {order.items.length} {order.items.length === 1 ? 'item' : 'items'} · ${order.total.toFixed(2)}
+                      <div className="flex flex-col items-end">
+                        <div className="flex items-center text-muted-foreground text-xs">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {formatTime(order.createdAt)}
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="mt-1 h-7 text-xs"
+                          onClick={() => navigate(`/orders/${order.id}`)}
+                        >
+                          Details
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end">
-                      <div className="flex items-center text-muted-foreground text-xs">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {formatTime(order.createdAt)}
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="mt-1 h-7 text-xs"
-                        onClick={() => navigate(`/orders/${order.id}`)}
-                      >
-                        Details
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-                
-                {recentOrders.length === 0 && (
+                  ))
+                ) : (
                   <p className="text-center text-muted-foreground py-6">
                     No recent orders
                   </p>
