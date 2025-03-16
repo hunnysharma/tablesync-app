@@ -5,16 +5,17 @@ import { TableGrid } from '@/components/dashboard/TableGrid';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TableStatus } from '@/utils/types';
-import { Search, RefreshCw, PlusCircle } from 'lucide-react';
+import { Search, RefreshCw, PlusCircle, Database } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchTables } from '@/services/tableService';
 import { seedDatabase } from '@/utils/seedDatabase';
 import { toast } from 'sonner';
+import { checkSupabaseTables } from '@/lib/supabase';
 
 const Tables = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [isCheckingTables, setIsCheckingTables] = useState(false);
   
   const { data: tables, isLoading, refetch } = useQuery({
     queryKey: ['tables'],
@@ -25,6 +26,15 @@ const Tables = () => {
     const success = await seedDatabase();
     if (success) {
       refetch();
+    }
+  };
+  
+  const handleCheckTables = async () => {
+    setIsCheckingTables(true);
+    try {
+      await checkSupabaseTables();
+    } finally {
+      setIsCheckingTables(false);
     }
   };
   
@@ -45,6 +55,10 @@ const Tables = () => {
         subtitle="Manage and view the status of all tables"
       >
         <div className="flex gap-2">
+          <Button variant="outline" onClick={handleCheckTables} disabled={isCheckingTables}>
+            <Database className="h-4 w-4 mr-2" />
+            {isCheckingTables ? 'Checking...' : 'Check Tables'}
+          </Button>
           <Button variant="outline" onClick={handleSeedDatabase}>
             Seed Database
           </Button>
