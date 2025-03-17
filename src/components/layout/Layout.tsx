@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { Sidebar } from './Sidebar';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
+import { Menu } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,7 +14,12 @@ export function Layout({ children }: LayoutProps) {
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex bg-background w-full">
         <Sidebar />
-        <SidebarInset className="animate-fade-in">
+        <SidebarInset className="animate-fade-in relative">
+          <div className="md:hidden absolute top-4 left-4 z-50">
+            <SidebarTrigger>
+              <Menu className="h-4 w-4" />
+            </SidebarTrigger>
+          </div>
           <div className="container py-6 max-w-7xl mx-auto">
             {children}
           </div>

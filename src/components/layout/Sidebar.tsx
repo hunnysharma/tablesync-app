@@ -1,6 +1,6 @@
 
 import { cn } from "@/lib/utils";
-import { Home, Utensils, ShoppingBag, LayoutGrid, Receipt, Settings } from 'lucide-react';
+import { Home, Utensils, ShoppingBag, LayoutGrid, Receipt, Settings, Menu } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
