@@ -23,8 +23,11 @@ const Orders = () => {
   });
   
   const filteredOrders = orders.filter(order => {
+    // Safely check if tableNumber exists and convert to string
+    const tableNumberStr = order.tableNumber?.toString() || '';
+    
     // Filter by search (table number)
-    const matchesSearch = order.tableNumber.toString().includes(search);
+    const matchesSearch = tableNumberStr.includes(search);
     
     // Filter by status
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
