@@ -1,91 +1,90 @@
 
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
-import { Menu } from 'lucide-react';
-import { Home, Utensils, ShoppingBag, LayoutGrid, Receipt, Settings } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
-import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { 
+  AlignJustify, 
+  LayoutDashboard, 
+  Coffee, 
+  ClipboardList, 
+  ReceiptText, 
+  Calculator,
+  ChevronRight
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
-interface SidebarProps {
-  className?: string;
-}
+export function Sidebar() {
+  const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation();
 
-export function Sidebar({ className }: SidebarProps) {
-  const isMobile = useIsMobile();
-  
+  const NavItems = [
+    { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/tables', label: 'Tables', icon: ClipboardList },
+    { path: '/menu', label: 'Menu', icon: Coffee },
+    { path: '/orders', label: 'Orders', icon: ReceiptText },
+    { path: '/bills', label: 'Bills', icon: Calculator },
+  ];
+
   return (
-    <div className={cn("pb-12", className)}>
-      <div className="space-y-4 py-4">
-        <div className="px-4 py-2">
-          <h2 className="mb-2 px-2 text-xl font-semibold tracking-tight">
-            Restaurant Manager
-          </h2>
-          <div className="space-y-1">
-            <NavLink to="/" className={({ isActive }) =>
-              cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
-                isActive ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
-              )
-            }>
-              <Home className="h-4 w-4" />
-              <span>Dashboard</span>
-            </NavLink>
-            <NavLink to="/tables" className={({ isActive }) =>
-              cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
-                isActive ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
-              )
-            }>
-              <LayoutGrid className="h-4 w-4" />
-              <span>Tables</span>
-            </NavLink>
-            <NavLink to="/orders" className={({ isActive }) =>
-              cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
-                isActive ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
-              )
-            }>
-              <ShoppingBag className="h-4 w-4" />
-              <span>Orders</span>
-            </NavLink>
-            <NavLink to="/menu" className={({ isActive }) =>
-              cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
-                isActive ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
-              )
-            }>
-              <Utensils className="h-4 w-4" />
-              <span>Menu</span>
-            </NavLink>
-            <NavLink to="/bills" className={({ isActive }) =>
-              cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
-                isActive ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
-              )
-            }>
-              <Receipt className="h-4 w-4" />
-              <span>Bills</span>
-            </NavLink>
-            <NavLink to="/setup" className={({ isActive }) =>
-              cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
-                isActive ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
-              )
-            }>
-              <Settings className="h-4 w-4" />
-              <span>Setup</span>
-            </NavLink>
-          </div>
-        </div>
+    <aside 
+      className={cn(
+        "glass h-screen fixed top-0 left-0 z-50 flex flex-col border-r border-border/40",
+        "transition-all duration-300 ease-in-out",
+        collapsed ? "w-20" : "w-64"
+      )}
+    >
+      <div className="flex items-center justify-between p-4 border-b border-border/40">
+        {!collapsed && (
+          <h1 className="text-xl font-semibold animate-fade-in">PlateSync</h1>
+        )}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className={cn(
+            "ml-auto rounded-full hover:bg-muted",
+            collapsed && "mx-auto"
+          )}
+          onClick={() => setCollapsed(!collapsed)}
+        >
+          {collapsed ? (
+            <ChevronRight className="h-5 w-5" />
+          ) : (
+            <AlignJustify className="h-5 w-5" />
+          )}
+        </Button>
       </div>
-    </div>
+      
+      <nav className="flex-1 py-4 space-y-1 overflow-y-auto">
+        {NavItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          const Icon = item.icon;
+          
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={cn(
+                "flex items-center gap-3 px-4 py-3 mx-2 rounded-lg transition-all duration-200",
+                "hover:bg-muted/80",
+                isActive ? "bg-muted/80 font-medium" : "text-muted-foreground",
+                collapsed && "justify-center px-2"
+              )}
+            >
+              <Icon className={cn(
+                "h-5 w-5",
+                isActive ? "text-primary" : "text-muted-foreground"
+              )} />
+              {!collapsed && (
+                <span className="animate-fade-in">{item.label}</span>
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+      
+      <div className="p-4 border-t border-border/40 text-xs text-muted-foreground text-center">
+        {!collapsed ? "PlateSync © 2023" : "©"}
+      </div>
+    </aside>
   );
 }
