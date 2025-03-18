@@ -2,18 +2,29 @@
 import { useState } from 'react';
 import { Layout, PageHeader } from '@/components/layout/Layout';
 import { MenuItem } from '@/components/menu/MenuItem';
-import { menuItems as initialMenuItems, categories } from '@/utils/dummyData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Plus } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { fetchMenuItems, fetchCategories } from '@/api/menuService';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Menu = () => {
-  const [menuItems, setMenuItems] = useState(initialMenuItems);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [availabilityFilter, setAvailabilityFilter] = useState<string>('all');
+  
+  const { data: menuItems = [], isLoading: isLoadingMenuItems } = useQuery({
+    queryKey: ['menuItems'],
+    queryFn: fetchMenuItems
+  });
+  
+  const { data: categories = [], isLoading: isLoadingCategories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: fetchCategories
+  });
   
   const filteredItems = menuItems.filter(item => {
     // Filter by search (item name)
@@ -90,7 +101,20 @@ const Menu = () => {
             </Select>
           </div>
           
-          {filteredItems.length > 0 ? (
+          {isLoadingMenuItems ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="border rounded-lg p-4 space-y-2">
+                  <div className="flex justify-between">
+                    <Skeleton className="h-6 w-32" />
+                    <Skeleton className="h-6 w-16" />
+                  </div>
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : filteredItems.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredItems.map((item) => (
                 <MenuItem key={item.id} item={item} />
@@ -114,27 +138,39 @@ const Menu = () => {
         </TabsContent>
         
         <TabsContent value="categories" className="pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {categories.map((category) => (
-              <div 
-                key={category.id} 
-                className="bg-muted/50 p-6 rounded-lg hover:shadow-sm transition-all cursor-pointer"
-              >
-                <h3 className="font-medium text-lg">{category.name}</h3>
-                {category.description && (
-                  <p className="text-muted-foreground text-sm mt-1">{category.description}</p>
-                )}
-                <p className="text-sm mt-2">
-                  {menuItems.filter(item => item.categoryId === category.id).length} items
-                </p>
-              </div>
-            ))}
-            
-            <div className="border border-dashed border-border rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground">
-              <Plus className="h-8 w-8 mb-2" />
-              <p>Add New Category</p>
+          {isLoadingCategories ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="bg-muted/50 p-6 rounded-lg space-y-2">
+                  <Skeleton className="h-6 w-32" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-16" />
+                </div>
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {categories.map((category) => (
+                <div 
+                  key={category.id} 
+                  className="bg-muted/50 p-6 rounded-lg hover:shadow-sm transition-all cursor-pointer"
+                >
+                  <h3 className="font-medium text-lg">{category.name}</h3>
+                  {category.description && (
+                    <p className="text-muted-foreground text-sm mt-1">{category.description}</p>
+                  )}
+                  <p className="text-sm mt-2">
+                    {menuItems.filter(item => item.categoryId === category.id).length} items
+                  </p>
+                </div>
+              ))}
+              
+              <div className="border border-dashed border-border rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground">
+                <Plus className="h-8 w-8 mb-2" />
+                <p>Add New Category</p>
+              </div>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </Layout>

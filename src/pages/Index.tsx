@@ -2,13 +2,16 @@
 import { useState, useEffect } from 'react';
 import { Layout, PageHeader } from '@/components/layout/Layout';
 import { TableGrid } from '@/components/dashboard/TableGrid';
-import { tables, orders } from '@/utils/dummyData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Table, Order } from '@/utils/types';
 import { ChevronRight, Users, Utensils, DollarSign, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { fetchTables } from '@/api/tableService';
+import { fetchOrders } from '@/api/orderService';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -19,22 +22,34 @@ const Dashboard = () => {
     totalSales: 0
   });
   
+  const { data: tables = [], isLoading: isLoadingTables } = useQuery({
+    queryKey: ['tables'],
+    queryFn: fetchTables
+  });
+  
+  const { data: orders = [], isLoading: isLoadingOrders } = useQuery({
+    queryKey: ['orders'],
+    queryFn: fetchOrders
+  });
+  
   useEffect(() => {
     // Calculate dashboard stats
-    const activeOrders = orders.filter(order => order.status === 'active').length;
-    const occupiedTables = tables.filter(table => table.status === 'occupied').length;
-    const availableTables = tables.filter(table => table.status === 'available').length;
-    const totalSales = orders.reduce((sum, order) => sum + order.total, 0);
-    
-    setStats({
-      activeOrders,
-      occupiedTables,
-      availableTables,
-      totalSales
-    });
-  }, []);
+    if (tables.length && orders.length) {
+      const activeOrders = orders.filter(order => order.status === 'active').length;
+      const occupiedTables = tables.filter(table => table.status === 'occupied').length;
+      const availableTables = tables.filter(table => table.status === 'available').length;
+      const totalSales = orders.reduce((sum, order) => sum + order.total, 0);
+      
+      setStats({
+        activeOrders,
+        occupiedTables,
+        availableTables,
+        totalSales
+      });
+    }
+  }, [tables, orders]);
   
-  const recentOrders = [...orders]
+  const recentOrders = [...(orders || [])]
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     .slice(0, 3);
     
@@ -76,6 +91,8 @@ const Dashboard = () => {
       hour12: true
     }).format(date);
   };
+
+  const isLoading = isLoadingTables || isLoadingOrders;
   
   return (
     <Layout>
@@ -91,7 +108,11 @@ const Dashboard = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">{stat.title}</p>
-                  <h3 className="text-2xl font-semibold">{stat.value}</h3>
+                  {isLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    <h3 className="text-2xl font-semibold">{stat.value}</h3>
+                  )}
                 </div>
                 <div className={`${stat.bg} ${stat.color} p-3 rounded-full`}>
                   <stat.icon className="h-5 w-5" />
@@ -118,7 +139,7 @@ const Dashboard = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <TableGrid tables={tables.slice(0, 8)} />
+              <TableGrid tables={tables.slice(0, 8)} isLoading={isLoadingTables} />
             </CardContent>
           </Card>
         </div>
@@ -139,35 +160,46 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentOrders.map((order) => (
-                  <div key={order.id} className="flex items-start justify-between p-3 bg-muted/50 rounded-lg animate-slide-in">
-                    <div>
-                      <div className="flex items-center">
-                        <span className="font-medium">Table {order.tableNumber}</span>
-                        <StatusBadge status={order.status} className="ml-2 text-xs" />
+                {isLoadingOrders ? (
+                  // Skeleton loading for orders
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="p-3 bg-muted/50 rounded-lg space-y-2">
+                      <div className="flex justify-between">
+                        <Skeleton className="h-5 w-24" />
+                        <Skeleton className="h-5 w-20" />
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        {order.items.length} {order.items.length === 1 ? 'item' : 'items'} · ${order.total.toFixed(2)}
+                      <Skeleton className="h-4 w-32" />
+                    </div>
+                  ))
+                ) : recentOrders.length > 0 ? (
+                  recentOrders.map((order) => (
+                    <div key={order.id} className="flex items-start justify-between p-3 bg-muted/50 rounded-lg animate-slide-in">
+                      <div>
+                        <div className="flex items-center">
+                          <span className="font-medium">Table {order.tableNumber}</span>
+                          <StatusBadge status={order.status} className="ml-2 text-xs" />
+                        </div>
+                        <div className="text-sm text-muted-foreground mt-1">
+                          {order.items.length} {order.items.length === 1 ? 'item' : 'items'} · ${order.total.toFixed(2)}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <div className="flex items-center text-muted-foreground text-xs">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {formatTime(order.createdAt)}
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="mt-1 h-7 text-xs"
+                          onClick={() => navigate(`/orders/${order.id}`)}
+                        >
+                          Details
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end">
-                      <div className="flex items-center text-muted-foreground text-xs">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {formatTime(order.createdAt)}
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="mt-1 h-7 text-xs"
-                        onClick={() => navigate(`/orders/${order.id}`)}
-                      >
-                        Details
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-                
-                {recentOrders.length === 0 && (
+                  ))
+                ) : (
                   <p className="text-center text-muted-foreground py-6">
                     No recent orders
                   </p>

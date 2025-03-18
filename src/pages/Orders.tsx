@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import { Layout, PageHeader } from '@/components/layout/Layout';
-import { orders as initialOrders } from '@/utils/dummyData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,12 +8,19 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Search, Plus, Clock, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { fetchOrders } from '@/api/orderService';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Orders = () => {
   const navigate = useNavigate();
-  const [orders, setOrders] = useState(initialOrders);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  
+  const { data: orders = [], isLoading } = useQuery({
+    queryKey: ['orders'],
+    queryFn: fetchOrders
+  });
   
   const filteredOrders = orders.filter(order => {
     // Filter by search (table number)
@@ -79,7 +85,26 @@ const Orders = () => {
         </Select>
       </div>
       
-      {filteredOrders.length > 0 ? (
+      {isLoading ? (
+        <div className="space-y-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="animate-scale-in">
+              <CardContent className="p-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-2">
+                    <Skeleton className="h-5 w-24" />
+                    <Skeleton className="h-4 w-48" />
+                  </div>
+                  <div className="flex items-center gap-4 ml-auto">
+                    <Skeleton className="h-6 w-16" />
+                    <Skeleton className="h-6 w-6 rounded-full" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : filteredOrders.length > 0 ? (
         <div className="space-y-4">
           {filteredOrders.map((order) => (
             <Card 

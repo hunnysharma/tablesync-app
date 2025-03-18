@@ -2,17 +2,21 @@
 import { useState } from 'react';
 import { Layout, PageHeader } from '@/components/layout/Layout';
 import { TableGrid } from '@/components/dashboard/TableGrid';
-import { tables as initialTables } from '@/utils/dummyData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TableStatus } from '@/utils/types';
 import { Search, RefreshCw } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { fetchTables } from '@/api/tableService';
 
 const Tables = () => {
-  const [tables, setTables] = useState(initialTables);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  
+  const { data: tables = [], isLoading, refetch } = useQuery({
+    queryKey: ['tables'],
+    queryFn: fetchTables
+  });
   
   const filteredTables = tables.filter(table => {
     // Filter by search (table number)
@@ -62,13 +66,13 @@ const Tables = () => {
           </SelectContent>
         </Select>
         
-        <Button variant="outline" size="icon">
+        <Button variant="outline" size="icon" onClick={() => refetch()}>
           <RefreshCw className="h-4 w-4" />
         </Button>
       </div>
       
-      {filteredTables.length > 0 ? (
-        <TableGrid tables={filteredTables} />
+      {filteredTables.length > 0 || isLoading ? (
+        <TableGrid tables={filteredTables} isLoading={isLoading} />
       ) : (
         <div className="text-center py-12 bg-muted/50 rounded-lg">
           <p className="text-muted-foreground">No tables found with the current filters</p>

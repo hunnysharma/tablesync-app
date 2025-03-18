@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import { Layout, PageHeader } from '@/components/layout/Layout';
-import { bills as initialBills } from '@/utils/dummyData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,12 +8,19 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Search, Printer, ChevronRight } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { fetchBills } from '@/api/billService';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Bills = () => {
   const navigate = useNavigate();
-  const [bills, setBills] = useState(initialBills);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  
+  const { data: bills = [], isLoading } = useQuery({
+    queryKey: ['bills'],
+    queryFn: fetchBills
+  });
   
   const filteredBills = bills.filter(bill => {
     // Filter by search (table number)
@@ -70,7 +76,29 @@ const Bills = () => {
         </Select>
       </div>
       
-      {filteredBills.length > 0 ? (
+      {isLoading ? (
+        <div className="space-y-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="animate-scale-in">
+              <CardContent className="p-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-2">
+                    <Skeleton className="h-5 w-24" />
+                    <Skeleton className="h-4 w-48" />
+                  </div>
+                  <div className="flex items-center gap-4 ml-auto">
+                    <Skeleton className="h-6 w-16" />
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-8 w-8 rounded-full" />
+                      <Skeleton className="h-5 w-5" />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : filteredBills.length > 0 ? (
         <div className="space-y-4">
           {filteredBills.map((bill) => (
             <Card 
