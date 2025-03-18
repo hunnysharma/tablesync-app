@@ -1,19 +1,18 @@
 
-import { cn } from "@/lib/utils";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { Menu } from 'lucide-react';
 import { Home, Utensils, ShoppingBag, LayoutGrid, Receipt, Settings } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
-import {
-  Sidebar as SidebarComponent,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarTrigger,
-  SidebarFooter,
-  useSidebar
-} from "@/components/ui/sidebar";
 
 interface SidebarProps {
   className?: string;
@@ -21,53 +20,72 @@ interface SidebarProps {
 
 export function Sidebar({ className }: SidebarProps) {
   const isMobile = useIsMobile();
-  const { open } = useSidebar();
-  
-  const menuItems = [
-    { to: "/", icon: Home, label: "Dashboard" },
-    { to: "/tables", icon: LayoutGrid, label: "Tables" },
-    { to: "/orders", icon: ShoppingBag, label: "Orders" },
-    { to: "/menu", icon: Utensils, label: "Menu" },
-    { to: "/bills", icon: Receipt, label: "Bills" },
-    { to: "/setup", icon: Settings, label: "Setup" },
-  ];
   
   return (
-    <SidebarComponent className={cn("z-40", className)}>
-      <SidebarHeader className="flex items-center justify-between">
-        <h2 className="px-2 text-xl font-semibold tracking-tight">
-          Restaurant Manager
-        </h2>
-        {!isMobile && 
-          <SidebarTrigger className="ml-auto" />
-        }
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarMenu>
-          {menuItems.map((item) => (
-            <SidebarMenuItem key={item.to}>
-              <NavLink to={item.to}>
-                {({ isActive }) => (
-                  <SidebarMenuButton 
-                    tooltip={!open ? item.label : undefined} 
-                    isActive={isActive}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                )}
-              </NavLink>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarContent>
-      <SidebarFooter>
-        <div className="px-3 py-2">
-          <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Restaurant Manager
-          </p>
+    <div className={cn("pb-12", className)}>
+      <div className="space-y-4 py-4">
+        <div className="px-4 py-2">
+          <h2 className="mb-2 px-2 text-xl font-semibold tracking-tight">
+            Restaurant Manager
+          </h2>
+          <div className="space-y-1">
+            <NavLink to="/" className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
+                isActive ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
+              )
+            }>
+              <Home className="h-4 w-4" />
+              <span>Dashboard</span>
+            </NavLink>
+            <NavLink to="/tables" className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
+                isActive ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
+              )
+            }>
+              <LayoutGrid className="h-4 w-4" />
+              <span>Tables</span>
+            </NavLink>
+            <NavLink to="/orders" className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
+                isActive ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
+              )
+            }>
+              <ShoppingBag className="h-4 w-4" />
+              <span>Orders</span>
+            </NavLink>
+            <NavLink to="/menu" className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
+                isActive ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
+              )
+            }>
+              <Utensils className="h-4 w-4" />
+              <span>Menu</span>
+            </NavLink>
+            <NavLink to="/bills" className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
+                isActive ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
+              )
+            }>
+              <Receipt className="h-4 w-4" />
+              <span>Bills</span>
+            </NavLink>
+            <NavLink to="/setup" className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
+                isActive ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
+              )
+            }>
+              <Settings className="h-4 w-4" />
+              <span>Setup</span>
+            </NavLink>
+          </div>
         </div>
-      </SidebarFooter>
-    </SidebarComponent>
+      </div>
+    </div>
   );
 }
