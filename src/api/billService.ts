@@ -4,15 +4,24 @@ import { Bill } from '@/utils/types';
 
 export const fetchBills = async (): Promise<Bill[]> => {
   try {
-    const { data, error } = await supabase
+    // First fetch bills
+    const { data: bills, error: billsError } = await supabase
       .from('bills')
-      .select('*, items:bill_items(*)');
+      .select('*');
     
-    if (error) throw error;
+    if (billsError) throw billsError;
+
+    // Then fetch bill items separately
+    const { data: billItems, error: itemsError } = await supabase
+      .from('bill_items')
+      .select('*');
+      
+    if (itemsError) throw itemsError;
     
-    // Transform data to match the expected format
-    return (data || []).map(bill => ({
+    // Combine the data
+    return (bills || []).map(bill => ({
       ...bill,
+      items: billItems?.filter(item => item.bill_id === bill.id) || [],
       createdAt: new Date(bill.created_at || Date.now()),
       paidAt: bill.paid_at ? new Date(bill.paid_at) : undefined,
     }));
@@ -24,20 +33,29 @@ export const fetchBills = async (): Promise<Bill[]> => {
 
 export const fetchBill = async (id: string): Promise<Bill | null> => {
   try {
-    const { data, error } = await supabase
+    // First fetch the bill
+    const { data: bill, error: billError } = await supabase
       .from('bills')
-      .select('*, items:bill_items(*)')
+      .select('*')
       .eq('id', id)
       .single();
     
-    if (error) throw error;
+    if (billError) throw billError;
+    if (!bill) return null;
+
+    // Then fetch its items
+    const { data: items, error: itemsError } = await supabase
+      .from('bill_items')
+      .select('*')
+      .eq('bill_id', id);
     
-    if (!data) return null;
+    if (itemsError) throw itemsError;
     
     return {
-      ...data,
-      createdAt: new Date(data.created_at || Date.now()),
-      paidAt: data.paid_at ? new Date(data.paid_at) : undefined,
+      ...bill,
+      items: items || [],
+      createdAt: new Date(bill.created_at || Date.now()),
+      paidAt: bill.paid_at ? new Date(bill.paid_at) : undefined,
     };
   } catch (error) {
     handleSupabaseError(error as Error);
