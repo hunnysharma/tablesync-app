@@ -14,13 +14,13 @@ export function Layout({ children }: LayoutProps) {
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex bg-background w-full">
         <Sidebar />
-        <SidebarInset className="animate-fade-in relative">
-          <div className="md:hidden absolute top-4 left-4 z-50">
+        <SidebarInset className="animate-fade-in">
+          <div className="fixed top-4 left-4 z-50">
             <SidebarTrigger>
-              <Menu className="h-4 w-4" />
+              <Menu className="h-5 w-5" />
             </SidebarTrigger>
           </div>
-          <div className="container py-6 max-w-7xl mx-auto">
+          <div className="container py-12 max-w-7xl mx-auto">
             {children}
           </div>
         </SidebarInset>

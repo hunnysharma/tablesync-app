@@ -1,6 +1,6 @@
 
 import { cn } from "@/lib/utils";
-import { Home, Utensils, ShoppingBag, LayoutGrid, Receipt, Settings, Menu } from 'lucide-react';
+import { Home, Utensils, ShoppingBag, LayoutGrid, Receipt, Settings } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -11,7 +11,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
-  SidebarFooter
+  SidebarFooter,
+  useSidebar
 } from "@/components/ui/sidebar";
 
 interface SidebarProps {
@@ -20,6 +21,7 @@ interface SidebarProps {
 
 export function Sidebar({ className }: SidebarProps) {
   const isMobile = useIsMobile();
+  const { open } = useSidebar();
   
   const menuItems = [
     { to: "/", icon: Home, label: "Dashboard" },
@@ -31,12 +33,14 @@ export function Sidebar({ className }: SidebarProps) {
   ];
   
   return (
-    <SidebarComponent className={className}>
-      <SidebarHeader className="flex items-center">
+    <SidebarComponent className={cn("z-40", className)}>
+      <SidebarHeader className="flex items-center justify-between">
         <h2 className="px-2 text-xl font-semibold tracking-tight">
           Restaurant Manager
         </h2>
-        {!isMobile && <SidebarTrigger className="ml-auto" />}
+        {!isMobile && 
+          <SidebarTrigger className="ml-auto" />
+        }
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
@@ -44,7 +48,10 @@ export function Sidebar({ className }: SidebarProps) {
             <SidebarMenuItem key={item.to}>
               <NavLink to={item.to}>
                 {({ isActive }) => (
-                  <SidebarMenuButton tooltip={item.label} isActive={isActive}>
+                  <SidebarMenuButton 
+                    tooltip={!open ? item.label : undefined} 
+                    isActive={isActive}
+                  >
                     <item.icon className="h-4 w-4" />
                     <span>{item.label}</span>
                   </SidebarMenuButton>
