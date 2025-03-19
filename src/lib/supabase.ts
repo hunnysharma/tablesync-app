@@ -2,20 +2,10 @@
 import { createClient } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = 'https://yrictvhvyycafqolplhn.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlyaWN0dmh2eXljYWZxb2xwbGhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE4NzAxNjUsImV4cCI6MjA1NzQ0NjE2NX0.rxT3lmh8Phb37rkA4tp1zXwmZ3Cbj_yDOgNVHrMjYe4';
 
-// Check if credentials are valid, otherwise warn in development
-if (!supabaseUrl || !supabaseAnonKey || 
-    supabaseUrl === 'your-supabase-url' || 
-    supabaseAnonKey === 'your-supabase-anon-key') {
-  console.warn('Supabase credentials missing or using placeholder values. Please set valid VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables. Using mock client for development.');
-}
-
-export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
-);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Helper function to handle Supabase errors
 export const handleSupabaseError = (error: Error) => {
