@@ -20,7 +20,9 @@ import {
 } from '@/components/ui/form';
 
 const tableSchema = z.object({
-  name: z.string().min(1, 'Table name is required'),
+  number: z.string().refine((val) => !isNaN(Number(val)), {
+    message: 'Table number is required',
+  }),
   capacity: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
     message: 'Capacity must be a positive number',
   }),
@@ -42,7 +44,7 @@ const CreateTable = () => {
   const form = useForm<TableFormValues>({
     resolver: zodResolver(tableSchema),
     defaultValues: {
-      name: '',
+      number: '',
       capacity: '4',
       positionX: '0',
       positionY: '0',
@@ -55,7 +57,7 @@ const CreateTable = () => {
     setIsLoading(true);
     try {
       await createTable({
-        name: values.name,
+        number: Number(values.number),
         capacity: Number(values.capacity),
         positionX: Number(values.positionX),
         positionY: Number(values.positionY),
@@ -80,12 +82,12 @@ const CreateTable = () => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="name"
+              name="number"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Table Name/Number</FormLabel>
+                  <FormLabel>Table Number</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Table 1, Booth A" {...field} />
+                    <Input placeholder="e.g., 1, 2, 3" type="number" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

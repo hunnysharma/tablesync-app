@@ -26,7 +26,7 @@ const menuItemSchema = z.object({
   price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
     message: 'Price must be a positive number',
   }),
-  category: z.string().min(1, 'Category is required'),
+  categoryId: z.string().min(1, 'Category is required'),
 });
 
 type MenuItemFormValues = z.infer<typeof menuItemSchema>;
@@ -42,7 +42,7 @@ const AddMenuItem = () => {
       name: '',
       description: '',
       price: '',
-      category: '',
+      categoryId: '',
     },
   });
 
@@ -55,7 +55,7 @@ const AddMenuItem = () => {
         name: values.name,
         description: values.description,
         price: Number(values.price),
-        category: values.category,
+        categoryId: values.categoryId,
         cafe_id: currentCafe.id,
         available: true,
       });
@@ -124,12 +124,12 @@ const AddMenuItem = () => {
 
               <FormField
                 control={form.control}
-                name="category"
+                name="categoryId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Main, Appetizer, Dessert" {...field} />
+                      <Input placeholder="e.g., main, appetizer, dessert" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
