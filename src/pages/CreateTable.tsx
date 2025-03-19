@@ -4,69 +4,79 @@ import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Layout, PageHeader } from '@/components/layout/Layout';
 import { createTable } from '@/api/tableService';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { Layout } from '@/components/layout/Layout';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const tableSchema = z.object({
-  number: z.string().min(1, 'Table number is required').transform(Number),
-  capacity: z.string().min(1, 'Capacity is required').transform(Number),
-  status: z.enum(['available', 'occupied', 'reserved', 'inactive']),
+  number: z.string().refine((val) => !isNaN(Number(val)), {
+    message: 'Table number is required',
+  }),
+  capacity: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+    message: 'Capacity must be a positive number',
+  }),
+  positionX: z.string().refine((val) => !isNaN(Number(val)), {
+    message: 'Position X must be a number',
+  }),
+  positionY: z.string().refine((val) => !isNaN(Number(val)), {
+    message: 'Position Y must be a number',
+  }),
 });
 
 type TableFormValues = z.infer<typeof tableSchema>;
 
 const CreateTable = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { currentCafe } = useAuth();
 
   const form = useForm<TableFormValues>({
     resolver: zodResolver(tableSchema),
     defaultValues: {
       number: '',
-      capacity: '',
-      status: 'available',
+      capacity: '4',
+      positionX: '0',
+      positionY: '0',
     },
   });
 
   const onSubmit = async (values: TableFormValues) => {
-    setIsSubmitting(true);
+    if (!currentCafe) return;
+    
+    setIsLoading(true);
     try {
       await createTable({
-        number: values.number,
-        capacity: values.capacity,
-        status: values.status,
+        number: Number(values.number),
+        capacity: Number(values.capacity),
+        positionX: Number(values.positionX),
+        positionY: Number(values.positionY),
+        status: 'available',
+        cafe_id: currentCafe.id
       });
       
-      toast.success('Table created successfully');
+      toast.success('Table created successfully!');
       navigate('/tables');
     } catch (error) {
-      toast.error('Failed to create table');
       console.error(error);
+      toast.error('Failed to create table');
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <Layout>
-      <PageHeader 
-        title="Add New Table" 
-        subtitle="Create a new table for your cafe"
-      />
-      
+    <Layout title="Create New Table">
       <div className="max-w-2xl mx-auto">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -77,16 +87,13 @@ const CreateTable = () => {
                 <FormItem>
                   <FormLabel>Table Number</FormLabel>
                   <FormControl>
-                    <Input type="number" min="1" placeholder="1" {...field} />
+                    <Input placeholder="e.g., 1, 2, 3" type="number" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Enter a unique table number
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="capacity"
@@ -94,56 +101,49 @@ const CreateTable = () => {
                 <FormItem>
                   <FormLabel>Seating Capacity</FormLabel>
                   <FormControl>
-                    <Input type="number" min="1" placeholder="4" {...field} />
+                    <Input type="number" min="1" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    How many people can be seated at this table
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value}
-                  >
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="positionX"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Position X</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select table status" />
-                      </SelectTrigger>
+                      <Input type="number" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="available">Available</SelectItem>
-                      <SelectItem value="occupied">Occupied</SelectItem>
-                      <SelectItem value="reserved">Reserved</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    The current status of the table
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <div className="flex justify-end gap-4">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => navigate('/tables')}
-              >
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="positionY"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Position Y</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex justify-end space-x-4">
+              <Button type="button" variant="outline" onClick={() => navigate('/tables')}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Creating...' : 'Create Table'}
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? 'Creating...' : 'Create Table'}
               </Button>
             </div>
           </form>

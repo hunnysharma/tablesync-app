@@ -12,6 +12,7 @@ import Menu from "./pages/Menu";
 import Orders from "./pages/Orders";
 import Bills from "./pages/Bills";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import CreateTable from "./pages/CreateTable";
 import AddMenuItem from "./pages/AddMenuItem";
@@ -29,6 +30,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             
             {/* Protected routes */}
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
