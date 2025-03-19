@@ -12,8 +12,6 @@ import { toast } from 'sonner';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Table, MenuItem, OrderItem as OrderItemType } from '@/utils/types';
 import {
   Form,
@@ -23,37 +21,9 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { OrderForm } from '@/components/orders/OrderForm';
-
-// Custom OrderItem component since we're having issues with the import
-const OrderItem = ({ item, onRemove }: { 
-  item: OrderItemType; 
-  onRemove: () => void;
-}) => {
-  return (
-    <div className="flex items-center justify-between p-3 border rounded-md bg-background">
-      <div className="flex-1">
-        <div className="flex items-center justify-between">
-          <span className="font-medium">{item.menuItemName}</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onRemove}
-            className="h-8 w-8 p-0"
-          >
-            ×
-          </Button>
-        </div>
-        <div className="text-sm text-muted-foreground">
-          Qty: {item.quantity} × ${item.price.toFixed(2)}
-        </div>
-        {item.notes && (
-          <div className="text-xs italic mt-1">{item.notes}</div>
-        )}
-      </div>
-    </div>
-  );
-};
+import { OrderFormFields } from '@/components/orders/OrderFormFields';
+import { OrderItemsList } from '@/components/orders/OrderItemsList';
+import { MenuItemPicker } from '@/components/orders/MenuItemPicker';
 
 const orderSchema = z.object({
   tableId: z.string().min(1, 'Table is required'),
@@ -173,9 +143,6 @@ const CreateOrder = () => {
           status: 'pending'
         })),
         status: 'active',
-        customer_name: values.customerName || 'Guest',
-        notes: values.notes || '',
-        cafe_id: currentCafe.id,
         subtotal: 0,
         tax: 0,
         total: 0,
@@ -202,88 +169,12 @@ const CreateOrder = () => {
           <Card className="p-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="tableId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Table</FormLabel>
-                        <FormControl>
-                          <select
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            {...field}
-                          >
-                            <option value="">Select a table</option>
-                            {tables.map((table) => (
-                              <option key={table.id} value={table.id}>
-                                Table {table.number} (Capacity: {table.capacity})
-                              </option>
-                            ))}
-                          </select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="customerName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Customer Name (Optional)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Customer name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="notes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Order Notes (Optional)</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Any special instructions for the order"
-                          className="min-h-20"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="items"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>Order Items</FormLabel>
-                      <div className="space-y-4">
-                        {selectedItems.length === 0 ? (
-                          <p className="text-muted-foreground text-sm italic">No items added to the order yet</p>
-                        ) : (
-                          <div className="space-y-2">
-                            {selectedItems.map((item) => (
-                              <OrderItem
-                                key={item.id}
-                                item={item}
-                                onRemove={() => handleRemoveItem(item.id)}
-                              />
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                <OrderFormFields control={form.control} tables={tables} />
+                
+                <OrderItemsList 
+                  control={form.control} 
+                  selectedItems={selectedItems} 
+                  onRemoveItem={handleRemoveItem} 
                 />
 
                 <div className="flex justify-end space-x-4">
@@ -307,37 +198,10 @@ const CreateOrder = () => {
         </div>
 
         <div>
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Add Items</h3>
-            <div className="space-y-4">
-              {menuItems.map((item) => (
-                <div key={item.id} className="border rounded-md p-3">
-                  <div className="font-medium">{item.name}</div>
-                  <div className="text-sm text-muted-foreground">${item.price.toFixed(2)}</div>
-                  <div className="mt-2 flex space-x-2">
-                    <Input 
-                      type="number" 
-                      placeholder="Qty" 
-                      className="w-20" 
-                      defaultValue="1"
-                      min="1"
-                      id={`qty-${item.id}`}
-                    />
-                    <Button 
-                      onClick={() => {
-                        const qtyInput = document.getElementById(`qty-${item.id}`) as HTMLInputElement;
-                        const qty = parseInt(qtyInput.value) || 1;
-                        handleAddItem(item, qty, '');
-                      }}
-                      size="sm"
-                    >
-                      Add
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
+          <MenuItemPicker 
+            menuItems={menuItems} 
+            onAddItem={handleAddItem} 
+          />
         </div>
       </div>
     </Layout>
