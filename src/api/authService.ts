@@ -1,3 +1,4 @@
+
 import { supabase, handleSupabaseError } from '@/lib/supabase';
 import { Cafe, User } from '@/utils/authTypes';
 import { toast } from 'sonner';
@@ -14,15 +15,21 @@ export const loginUser = async (email: string, password: string): Promise<User |
     // Fetch user profile with cafe information
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('*, cafes:cafe_id(*)')
+      .select('id, email, cafe_id, role, created_at, cafes:cafe_id(id, name, address, logo, created_at)')
       .eq('id', data.user.id)
       .single();
 
     if (userError) throw userError;
 
+    // Store the user and cafe data in localStorage
+    localStorage.setItem('currentUser', JSON.stringify(userData));
+    localStorage.setItem('currentCafe', JSON.stringify(userData.cafes));
+    
+    toast.success('Login successful!');
     return userData;
   } catch (error) {
-    handleSupabaseError(error as Error);
+    console.error('Login error:', error);
+    toast.error('Invalid email or password');
     return null;
   }
 };
@@ -59,7 +66,7 @@ export const getCurrentUser = async (): Promise<User | null> => {
     // Fetch user profile with cafe information
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('*, cafes:cafe_id(*)')
+      .select('id, email, cafe_id, role, created_at, cafes:cafe_id(id, name, address, logo, created_at)')
       .eq('id', data.user.id)
       .single();
 
@@ -104,5 +111,46 @@ export const getCurrentCafe = async (): Promise<Cafe | null> => {
   } catch (error) {
     handleSupabaseError(error as Error);
     return null;
+  }
+};
+
+export const registerCafe = async (cafeData: Partial<Cafe>, userData: { email: string, password: string, role: 'admin' }): Promise<{ cafe: Cafe | null, user: User | null }> => {
+  try {
+    // 1. Create cafe
+    const { data: newCafe, error: cafeError } = await supabase
+      .from('cafes')
+      .insert([cafeData])
+      .select()
+      .single();
+    
+    if (cafeError) throw cafeError;
+    
+    // 2. Create user auth account
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: userData.email,
+      password: userData.password,
+    });
+    
+    if (authError) throw authError;
+    
+    // 3. Create user profile linked to cafe
+    const { data: newUser, error: userError } = await supabase
+      .from('users')
+      .insert([{
+        id: authData.user?.id,
+        email: userData.email,
+        cafe_id: newCafe.id,
+        role: userData.role
+      }])
+      .select()
+      .single();
+    
+    if (userError) throw userError;
+    
+    toast.success('Cafe registered successfully!');
+    return { cafe: newCafe, user: newUser };
+  } catch (error) {
+    handleSupabaseError(error as Error);
+    return { cafe: null, user: null };
   }
 };

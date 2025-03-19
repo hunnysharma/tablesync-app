@@ -6,9 +6,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginUser } from '@/api/authService';
 import { toast } from 'sonner';
-import { Coffee } from 'lucide-react';
+import { Coffee, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Form,
   FormControl,
@@ -20,7 +21,7 @@ import {
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -45,11 +46,9 @@ const Login = () => {
       if (user) {
         toast.success('Login successful!');
         navigate('/');
-      } else {
-        toast.error('Invalid email or password');
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
@@ -66,6 +65,13 @@ const Login = () => {
             <h1 className="text-3xl font-bold">PlateSync</h1>
             <p className="text-muted-foreground mt-2">Sign in to your cafe dashboard</p>
           </div>
+
+          <Alert className="mb-6">
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Multiple cafe owners can use this platform to manage their restaurants.
+            </AlertDescription>
+          </Alert>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

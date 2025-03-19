@@ -1,6 +1,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getCurrentUser, getCurrentCafe } from '@/api/authService';
+import { getCurrentUser, getCurrentCafe, logoutUser } from '@/api/authService';
 import { User, Cafe } from '@/utils/authTypes';
 
 interface AuthContextType {
@@ -9,6 +9,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   refreshUser: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   isLoading: true,
   refreshUser: async () => {},
+  logout: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -28,15 +30,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const refreshUser = async () => {
     setIsLoading(true);
-    const user = await getCurrentUser();
-    setCurrentUser(user);
-    
-    if (user) {
-      const cafe = await getCurrentCafe();
-      setCurrentCafe(cafe);
+    try {
+      const user = await getCurrentUser();
+      setCurrentUser(user);
+      
+      if (user) {
+        const cafe = await getCurrentCafe();
+        setCurrentCafe(cafe);
+      }
+    } catch (error) {
+      console.error('Error refreshing user:', error);
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
+  };
+
+  const logout = async () => {
+    await logoutUser();
+    setCurrentUser(null);
+    setCurrentCafe(null);
   };
 
   useEffect(() => {
@@ -49,6 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isAuthenticated: !!currentUser,
     isLoading,
     refreshUser,
+    logout,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

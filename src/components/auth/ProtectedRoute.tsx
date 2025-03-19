@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, currentCafe } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
@@ -21,7 +21,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !currentCafe) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
