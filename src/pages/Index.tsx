@@ -6,15 +6,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Table, Order } from '@/utils/types';
-import { ChevronRight, Users, Utensils, DollarSign, Clock } from 'lucide-react';
+import { ChevronRight, Users, Utensils, DollarSign, Clock, Coffee } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { fetchTables } from '@/api/tableService';
 import { fetchOrders } from '@/api/orderService';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { currentCafe } = useAuth();
   const [stats, setStats] = useState({
     activeOrders: 0,
     occupiedTables: 0,
@@ -97,9 +99,16 @@ const Dashboard = () => {
   return (
     <Layout>
       <PageHeader 
-        title="Dashboard" 
-        subtitle="Overview of your restaurant's current status"
-      />
+        title={currentCafe ? `${currentCafe.name} Dashboard` : 'Dashboard'} 
+        subtitle="Overview of your cafe's current status"
+      >
+        {currentCafe && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Coffee className="h-5 w-5" />
+            <span>{currentCafe.name}</span>
+          </div>
+        )}
+      </PageHeader>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {statCards.map((stat, index) => (
@@ -129,13 +138,21 @@ const Dashboard = () => {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle>Table Status</CardTitle>
-                <Button 
-                  variant="ghost" 
-                  className="text-sm"
-                  onClick={() => navigate('/tables')}
-                >
-                  View All <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline"
+                    onClick={() => navigate('/tables/new')}
+                  >
+                    Add Table
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    className="text-sm"
+                    onClick={() => navigate('/tables')}
+                  >
+                    View All <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -149,13 +166,21 @@ const Dashboard = () => {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle>Recent Orders</CardTitle>
-                <Button 
-                  variant="ghost" 
-                  className="text-sm"
-                  onClick={() => navigate('/orders')}
-                >
-                  View All <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline"
+                    onClick={() => navigate('/orders/new')}
+                  >
+                    New Order
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    className="text-sm"
+                    onClick={() => navigate('/orders')}
+                  >
+                    View All <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>

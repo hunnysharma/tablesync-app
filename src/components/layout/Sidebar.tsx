@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   AlignJustify, 
   LayoutDashboard, 
@@ -8,14 +8,19 @@ import {
   ClipboardList, 
   ReceiptText, 
   Calculator,
-  ChevronRight
+  ChevronRight,
+  LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { logoutUser } from '@/api/authService';
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { currentCafe } = useAuth();
 
   const NavItems = [
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -24,6 +29,11 @@ export function Sidebar() {
     { path: '/orders', label: 'Orders', icon: ReceiptText },
     { path: '/bills', label: 'Bills', icon: Calculator },
   ];
+  
+  const handleLogout = async () => {
+    await logoutUser();
+    navigate('/login');
+  };
 
   return (
     <aside 
@@ -54,6 +64,15 @@ export function Sidebar() {
         </Button>
       </div>
       
+      {currentCafe && !collapsed && (
+        <div className="px-4 py-3 border-b border-border/40">
+          <div className="flex items-center gap-2">
+            <Coffee className="h-5 w-5 text-primary" />
+            <span className="font-medium">{currentCafe.name}</span>
+          </div>
+        </div>
+      )}
+      
       <nav className="flex-1 py-4 space-y-1 overflow-y-auto">
         {NavItems.map((item) => {
           const isActive = location.pathname === item.path;
@@ -81,6 +100,20 @@ export function Sidebar() {
           );
         })}
       </nav>
+      
+      <div className="p-4 border-t border-border/40">
+        <Button 
+          variant="ghost" 
+          className={cn(
+            "w-full justify-start text-muted-foreground",
+            collapsed && "justify-center"
+          )}
+          onClick={handleLogout}
+        >
+          <LogOut className="h-5 w-5 mr-2" />
+          {!collapsed && "Logout"}
+        </Button>
+      </div>
       
       <div className="p-4 border-t border-border/40 text-xs text-muted-foreground text-center">
         {!collapsed ? "PlateSync © 2023" : "©"}
