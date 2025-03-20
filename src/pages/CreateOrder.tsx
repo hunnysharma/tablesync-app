@@ -147,9 +147,7 @@ const CreateOrder = () => {
         tax: 0,
         total: 0,
         paymentStatus: 'pending',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        tableNumber: Number(tables.find(t => t.id === values.tableId)?.number || 0)
+        table_number: Number(tables.find(t => t.id === values.tableId)?.number || 0)
       });
       
       toast.success('Order created successfully!');

@@ -62,7 +62,7 @@ const Login = () => {
             <div className="mb-4 bg-primary/10 p-3 rounded-full">
               <Coffee className="h-12 w-12 text-primary" />
             </div>
-            <h1 className="text-3xl font-bold">PlateSync</h1>
+            <h1 className="text-3xl font-bold">RestroLive</h1>
             <p className="text-muted-foreground mt-2">Sign in to your cafe dashboard</p>
           </div>
 

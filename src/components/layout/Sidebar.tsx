@@ -45,7 +45,7 @@ export function Sidebar() {
     >
       <div className="flex items-center justify-between p-4 border-b border-border/40">
         {!collapsed && (
-          <h1 className="text-xl font-semibold animate-fade-in">PlateSync</h1>
+          <h1 className="text-xl font-semibold animate-fade-in">RestroLive</h1>
         )}
         <Button 
           variant="ghost" 
@@ -116,7 +116,7 @@ export function Sidebar() {
       </div>
       
       <div className="p-4 border-t border-border/40 text-xs text-muted-foreground text-center">
-        {!collapsed ? "PlateSync © 2023" : "©"}
+        {!collapsed ? "RestroLive © 2023" : "©"}
       </div>
     </aside>
   );

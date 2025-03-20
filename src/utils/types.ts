@@ -38,7 +38,7 @@ export interface OrderItem {
 export interface Order {
   id: string;
   tableId: string;
-  tableNumber: number;
+  table_number: number;
   items: OrderItem[];
   status: 'active' | 'completed' | 'cancelled';
   createdAt: Date;
@@ -53,7 +53,7 @@ export interface Order {
 export interface Bill {
   id: string;
   orderId: string;
-  tableNumber: number;
+  table_number: number;
   items: OrderItem[];
   subtotal: number;
   tax: number;
