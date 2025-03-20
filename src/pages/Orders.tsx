@@ -56,7 +56,7 @@ const Orders = () => {
         title="Orders" 
         subtitle="Manage and track all customer orders"
       >
-        <Button onClick={() => navigate('/tables')}>
+        <Button onClick={() => navigate('/orders/new')}>
           <Plus className="h-4 w-4 mr-2" /> New Order
         </Button>
       </PageHeader>

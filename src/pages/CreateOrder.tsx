@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createOrder } from '@/api/orderService';
 import { fetchTables } from '@/api/tableService';
+import { fetchMenuItems } from '@/api/menuService';
 import { useAuth } from '@/contexts/AuthContext';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
@@ -65,36 +66,11 @@ const CreateOrder = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (currentCafe) {
-          const tablesData = await fetchTables();
-          setTables(tablesData);
-          
-          // Since getAllMenuItems doesn't exist, we'll need a mock for testing
-          // In production, you'd want to implement this API method
-          setMenuItems([
-            {
-              id: '1',
-              name: 'Pizza',
-              price: 12.99,
-              categoryId: 'main',
-              available: true
-            },
-            {
-              id: '2',
-              name: 'Burger',
-              price: 8.99,
-              categoryId: 'main',
-              available: true
-            },
-            {
-              id: '3',
-              name: 'Salad',
-              price: 6.99,
-              categoryId: 'side',
-              available: true
-            }
-          ]);
-        }
+        const tablesData = await fetchTables();
+        setTables(tablesData);
+        
+        const menuItemsData = await fetchMenuItems();
+        setMenuItems(menuItemsData);
       } catch (error) {
         console.error('Error fetching data:', error);
         toast.error('Failed to load data');
@@ -126,28 +102,35 @@ const CreateOrder = () => {
     setSelectedItems(selectedItems.filter(item => item.id !== itemId));
   };
 
+  const calculateTotals = (items: OrderItemType[]) => {
+    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const tax = subtotal * 0.1; // Assuming 10% tax
+    const total = subtotal + tax;
+    
+    return { subtotal, tax, total };
+  };
+
   const onSubmit = async (values: OrderFormValues) => {
     if (!currentCafe) return;
     
     setIsLoading(true);
     try {
+      const selectedTable = tables.find(t => t.id === values.tableId);
+      if (!selectedTable) {
+        throw new Error('Selected table not found');
+      }
+      
+      const { subtotal, tax, total } = calculateTotals(values.items);
+      
       await createOrder({
         tableId: values.tableId,
-        items: values.items.map(item => ({
-          id: item.id,
-          menuItemId: item.menuItemId,
-          menuItemName: item.menuItemName,
-          quantity: item.quantity,
-          price: item.price,
-          notes: item.notes || '',
-          status: 'pending'
-        })),
+        items: values.items,
         status: 'active',
-        subtotal: 0,
-        tax: 0,
-        total: 0,
+        subtotal,
+        tax,
+        total,
         paymentStatus: 'pending',
-        table_number: Number(tables.find(t => t.id === values.tableId)?.number || 0)
+        table_number: selectedTable.number
       });
       
       toast.success('Order created successfully!');
