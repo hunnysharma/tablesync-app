@@ -89,7 +89,7 @@ export const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'u
         status: 'occupied',
         current_order_id: order.id,
       })
-      .eq('id', orderDetails.tableId);
+      .eq('id', orderDetails.table_id);
     
     if (tableError) throw tableError;
     
@@ -135,7 +135,7 @@ export const updateOrder = async (id: string, orderData: Partial<Order>): Promis
           status: 'available',
           current_order_id: null,
         })
-        .eq('id', order.tableId);
+        .eq('id', order.table_id);
       
       if (tableError) throw tableError;
     }

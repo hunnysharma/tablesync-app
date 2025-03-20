@@ -37,7 +37,7 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
-  tableId: string;
+  table_id: string;
   table_number: number;
   items: OrderItem[];
   status: 'active' | 'completed' | 'cancelled';
@@ -46,7 +46,7 @@ export interface Order {
   subtotal: number;
   tax: number;
   total: number;
-  paymentStatus: 'pending' | 'paid';
+  payment_status: 'pending' | 'paid';
   paymentMethod?: 'cash' | 'card' | 'upi';
 }
 
@@ -58,7 +58,7 @@ export interface Bill {
   subtotal: number;
   tax: number;
   total: number;
-  paymentStatus: 'pending' | 'paid';
+  payment_status: 'pending' | 'paid';
   paymentMethod?: 'cash' | 'card' | 'upi';
   createdAt: Date;
   paidAt?: Date;

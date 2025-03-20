@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 
 interface OrderFormProps {
-  tableId: string;
+  table_id: string;
   tableNumber: number;
   menuItems: MenuItem[];
   existingItems?: OrderItem[];
@@ -18,7 +18,7 @@ interface OrderFormProps {
 }
 
 export function OrderForm({ 
-  tableId, 
+  table_id, 
   tableNumber, 
   menuItems, 
   existingItems = [],

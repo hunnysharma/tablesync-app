@@ -182,7 +182,7 @@ const OrderDetails = () => {
                 
                 <div className="pt-4 border-t mt-4">
                   <p className="text-sm text-muted-foreground">
-                    Payment Status: {order.paymentStatus === 'paid' ? 'Paid' : 'Unpaid'}
+                    Payment Status: {order.payment_status === 'paid' ? 'Paid' : 'Unpaid'}
                   </p>
                 </div>
               </div>

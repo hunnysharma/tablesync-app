@@ -96,7 +96,7 @@ const PrintBill = () => {
             </div>
             <div className="text-right">
               <p><strong>Date:</strong> {formatDate(bill.createdAt)}</p>
-              <p><strong>Status:</strong> {bill.paymentStatus.toUpperCase()}</p>
+              <p><strong>Status:</strong> {bill.payment_status.toUpperCase()}</p>
             </div>
           </div>
           

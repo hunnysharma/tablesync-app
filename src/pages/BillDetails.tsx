@@ -42,7 +42,7 @@ const BillDetails = () => {
     setIsProcessing(true);
     try {
       const updatedBill = await updateBill(bill.id, {
-        paymentStatus: 'paid',
+        payment_status: 'paid',
         paymentMethod: 'card', // Default to card payment
         paidAt: new Date()
       });
@@ -112,7 +112,7 @@ const BillDetails = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Bill for Table {bill.table_number}</CardTitle>
-                <StatusBadge status={bill.paymentStatus} />
+                <StatusBadge status={bill.payment_status} />
               </div>
               <p className="text-sm text-muted-foreground">
                 Created: {formatDate(bill.createdAt)}
@@ -171,7 +171,7 @@ const BillDetails = () => {
               </div>
             </CardContent>
             <CardFooter className="flex-col space-y-2">
-              {bill.paymentStatus !== 'paid' && (
+              {bill.payment_status !== 'paid' && (
                 <Button 
                   className="w-full"
                   onClick={handleMarkAsPaid}

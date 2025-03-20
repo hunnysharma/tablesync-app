@@ -27,7 +27,7 @@ const Bills = () => {
     const matchesSearch = bill.table_number.toString().includes(search);
     
     // Filter by status
-    const matchesStatus = statusFilter === 'all' || bill.paymentStatus === statusFilter;
+    const matchesStatus = statusFilter === 'all' || bill.payment_status === statusFilter;
     
     return matchesSearch && matchesStatus;
   }).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -111,7 +111,7 @@ const Bills = () => {
                   <div>
                     <div className="flex items-center">
                       <h3 className="text-lg font-medium">Table {bill.table_number}</h3>
-                      <StatusBadge status={bill.paymentStatus} className="ml-2" />
+                      <StatusBadge status={bill.payment_status} className="ml-2" />
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                       <div>{formatDate(bill.createdAt)}</div>

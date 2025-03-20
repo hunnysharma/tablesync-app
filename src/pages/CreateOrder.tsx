@@ -27,7 +27,7 @@ import { OrderItemsList } from '@/components/orders/OrderItemsList';
 import { MenuItemPicker } from '@/components/orders/MenuItemPicker';
 
 const orderSchema = z.object({
-  tableId: z.string().min(1, 'Table is required'),
+  table_id: z.string().min(1, 'Table is required'),
   customerName: z.string().optional(),
   notes: z.string().optional(),
   items: z.array(
@@ -56,7 +56,7 @@ const CreateOrder = () => {
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderSchema),
     defaultValues: {
-      tableId: '',
+      table_id: '',
       customerName: '',
       notes: '',
       items: [],
@@ -115,7 +115,7 @@ const CreateOrder = () => {
     
     setIsLoading(true);
     try {
-      const selectedTable = tables.find(t => t.id === values.tableId);
+      const selectedTable = tables.find(t => t.id === values.table_id);
       if (!selectedTable) {
         throw new Error('Selected table not found');
       }
@@ -123,14 +123,14 @@ const CreateOrder = () => {
       const { subtotal, tax, total } = calculateTotals(values.items);
       
       const result = await createOrder({
-        tableId: values.tableId,
+        table_id: values.table_id,
         table_number: selectedTable.number,
         items: values.items,
         status: 'active',
         subtotal,
         tax,
         total,
-        paymentStatus: 'pending',
+        payment_status: 'pending',
       });
       
       if (result) {

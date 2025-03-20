@@ -45,7 +45,7 @@ const TableDetails = () => {
   
   const handleCreateOrder = () => {
     if (table) {
-      navigate(`/orders/new?tableId=${table.id}`);
+      navigate(`/orders/new?table_id=${table.id}`);
     }
   };
   

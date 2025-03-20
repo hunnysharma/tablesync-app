@@ -35,7 +35,7 @@ export const menuItems: MenuItem[] = [
 export const orders: Order[] = [
   {
     id: '1',
-    tableId: '2',
+    table_id: '2',
     table_number: 2,
     items: [
       { id: '101', menuItemId: '1', menuItemName: 'Garlic Bread', quantity: 1, price: 5.99, status: 'served' },
@@ -48,11 +48,11 @@ export const orders: Order[] = [
     subtotal: 37.95,
     tax: 3.80,
     total: 41.75,
-    paymentStatus: 'pending',
+    payment_status: 'pending',
   },
   {
     id: '2',
-    tableId: '5',
+    table_id: '5',
     table_number: 5,
     items: [
       { id: '201', menuItemId: '2', menuItemName: 'Buffalo Wings', quantity: 1, price: 9.99, status: 'preparing' },
@@ -65,7 +65,7 @@ export const orders: Order[] = [
     subtotal: 46.96,
     tax: 4.70,
     total: 51.66,
-    paymentStatus: 'pending',
+    payment_status: 'pending',
   },
 ];
 
@@ -82,7 +82,7 @@ export const bills: Bill[] = [
     subtotal: 37.95,
     tax: 3.80,
     total: 41.75,
-    paymentStatus: 'pending',
+    payment_status: 'pending',
     createdAt: new Date(Date.now() - 15 * 60000), // 15 minutes ago
   },
 ];

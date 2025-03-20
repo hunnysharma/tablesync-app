@@ -30,8 +30,8 @@ const Tables = () => {
     return matchesSearch && matchesStatus;
   });
   
-  const handleTableClick = (tableId: string) => {
-    navigate(`/tables/${tableId}`);
+  const handleTableClick = (table_id: string) => {
+    navigate(`/tables/${table_id}`);
   };
   
   return (

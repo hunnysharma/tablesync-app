@@ -28,7 +28,7 @@ export const fetchBills = async (): Promise<Bill[]> => {
       subtotal: bill.subtotal,
       tax: bill.tax,
       total: bill.total,
-      paymentStatus: bill.payment_status,
+      payment_status: bill.payment_status,
       paymentMethod: bill.payment_method,
       items: billItems?.filter(item => item.order_id === bill.order_id).map(item => ({
         id: item.id,
@@ -76,7 +76,7 @@ export const fetchBill = async (id: string): Promise<Bill | null> => {
       subtotal: bill.subtotal,
       tax: bill.tax,
       total: bill.total,
-      paymentStatus: bill.payment_status,
+      payment_status: bill.payment_status,
       paymentMethod: bill.payment_method,
       items: items?.map(item => ({
         id: item.id,
@@ -101,12 +101,12 @@ export const updateBill = async (id: string, billData: Partial<Bill>): Promise<B
     const updates: any = {};
     
     // Map from our interface to the database schema
-    if (billData.paymentStatus !== undefined) updates.payment_status = billData.paymentStatus;
+    if (billData.payment_status !== undefined) updates.payment_status = billData.payment_status;
     if (billData.paymentMethod !== undefined) updates.payment_method = billData.paymentMethod;
     
     // Add updated_at and paid_at if relevant
     updates.updated_at = new Date().toISOString();
-    if (billData.paymentStatus === 'paid' && !billData.paidAt) {
+    if (billData.payment_status === 'paid' && !billData.paidAt) {
       updates.paid_at = new Date().toISOString();
     }
     
@@ -135,7 +135,7 @@ export const updateBill = async (id: string, billData: Partial<Bill>): Promise<B
       subtotal: data.subtotal,
       tax: data.tax,
       total: data.total,
-      paymentStatus: data.payment_status,
+      payment_status: data.payment_status,
       paymentMethod: data.payment_method,
       items: items?.map(item => ({
         id: item.id,
@@ -212,7 +212,7 @@ export const createBill = async (orderId: string): Promise<Bill | null> => {
       subtotal: bill.subtotal,
       tax: bill.tax,
       total: bill.total,
-      paymentStatus: bill.payment_status,
+      payment_status: bill.payment_status,
       items: transformedItems,
       createdAt: new Date(bill.created_at || Date.now()),
       paidAt: undefined,

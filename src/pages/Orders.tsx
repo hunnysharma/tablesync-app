@@ -138,7 +138,7 @@ const Orders = () => {
                     <div className="text-right">
                       <div className="font-medium">${order.total.toFixed(2)}</div>
                       <div className="text-xs text-muted-foreground">
-                        {order.paymentStatus === 'paid' ? 'Paid' : 'Unpaid'}
+                        {order.payment_status === 'paid' ? 'Paid' : 'Unpaid'}
                       </div>
                     </div>
                     <ChevronRight className="h-5 w-5 text-muted-foreground" />

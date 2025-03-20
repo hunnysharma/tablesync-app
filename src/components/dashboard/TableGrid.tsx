@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface TableGridProps {
   tables: Table[];
   isLoading?: boolean;
-  onTableClick?: (tableId: string) => void;
+  onTableClick?: (table_id: string) => void;
 }
 
 export function TableGrid({ tables, isLoading = false, onTableClick }: TableGridProps) {
