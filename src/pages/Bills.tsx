@@ -24,7 +24,7 @@ const Bills = () => {
   
   const filteredBills = bills.filter(bill => {
     // Filter by search (table number)
-    const matchesSearch = bill.tableNumber.toString().includes(search);
+    const matchesSearch = bill.table_number.toString().includes(search);
     
     // Filter by status
     const matchesStatus = statusFilter === 'all' || bill.paymentStatus === statusFilter;
@@ -110,7 +110,7 @@ const Bills = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <div className="flex items-center">
-                      <h3 className="text-lg font-medium">Table {bill.tableNumber}</h3>
+                      <h3 className="text-lg font-medium">Table {bill.table_number}</h3>
                       <StatusBadge status={bill.paymentStatus} className="ml-2" />
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">

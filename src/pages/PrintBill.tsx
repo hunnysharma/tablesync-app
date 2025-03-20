@@ -84,7 +84,7 @@ const PrintBill = () => {
       <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg overflow-hidden mb-6">
         <div className="p-8" ref={printRef}>
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold">{currentCafe?.name || 'PlateSync Cafe'}</h1>
+            <h1 className="text-2xl font-bold">{currentCafe?.name || 'RestroLive Cafe'}</h1>
             <p className="text-muted-foreground">{currentCafe?.address || '123 Cafe Street, City'}</p>
             <p className="text-sm text-muted-foreground mt-2">Tax Invoice / Receipt</p>
           </div>
@@ -92,7 +92,7 @@ const PrintBill = () => {
           <div className="flex justify-between mb-6 text-sm">
             <div>
               <p><strong>Bill #:</strong> {bill.id.substring(0, 8).toUpperCase()}</p>
-              <p><strong>Table:</strong> {bill.tableNumber}</p>
+              <p><strong>Table:</strong> {bill.table_number}</p>
             </div>
             <div className="text-right">
               <p><strong>Date:</strong> {formatDate(bill.createdAt)}</p>

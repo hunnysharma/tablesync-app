@@ -36,7 +36,7 @@ export const orders: Order[] = [
   {
     id: '1',
     tableId: '2',
-    tableNumber: 2,
+    table_number: 2,
     items: [
       { id: '101', menuItemId: '1', menuItemName: 'Garlic Bread', quantity: 1, price: 5.99, status: 'served' },
       { id: '102', menuItemId: '5', menuItemName: 'Spaghetti Carbonara', quantity: 2, price: 12.99, status: 'served' },
@@ -53,7 +53,7 @@ export const orders: Order[] = [
   {
     id: '2',
     tableId: '5',
-    tableNumber: 5,
+    table_number: 5,
     items: [
       { id: '201', menuItemId: '2', menuItemName: 'Buffalo Wings', quantity: 1, price: 9.99, status: 'preparing' },
       { id: '202', menuItemId: '6', menuItemName: 'Grilled Salmon', quantity: 1, price: 18.99, status: 'pending' },
@@ -73,7 +73,7 @@ export const bills: Bill[] = [
   {
     id: '1',
     orderId: '1',
-    tableNumber: 2,
+    table_number: 2,
     items: [
       { id: '101', menuItemId: '1', menuItemName: 'Garlic Bread', quantity: 1, price: 5.99, status: 'served' },
       { id: '102', menuItemId: '5', menuItemName: 'Spaghetti Carbonara', quantity: 2, price: 12.99, status: 'served' },
