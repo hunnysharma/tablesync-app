@@ -30,6 +30,10 @@ const Tables = () => {
     return matchesSearch && matchesStatus;
   });
   
+  const handleTableClick = (tableId: string) => {
+    navigate(`/tables/${tableId}`);
+  };
+  
   return (
     <Layout>
       <PageHeader 
@@ -74,7 +78,11 @@ const Tables = () => {
       </div>
       
       {filteredTables.length > 0 || isLoading ? (
-        <TableGrid tables={filteredTables} isLoading={isLoading} />
+        <TableGrid 
+          tables={filteredTables} 
+          isLoading={isLoading} 
+          onTableClick={handleTableClick}
+        />
       ) : (
         <div className="text-center py-12 bg-muted/50 rounded-lg">
           <p className="text-muted-foreground">No tables found with the current filters</p>

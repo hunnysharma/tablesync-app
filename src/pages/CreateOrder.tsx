@@ -122,7 +122,7 @@ const CreateOrder = () => {
       
       const { subtotal, tax, total } = calculateTotals(values.items);
       
-      await createOrder({
+      const result = await createOrder({
         tableId: values.tableId,
         items: values.items,
         status: 'active',
@@ -133,10 +133,14 @@ const CreateOrder = () => {
         table_number: selectedTable.number
       });
       
-      toast.success('Order created successfully!');
-      navigate('/orders');
+      if (result) {
+        toast.success('Order created successfully!');
+        navigate('/orders');
+      } else {
+        throw new Error('Failed to create order');
+      }
     } catch (error) {
-      console.error(error);
+      console.error('Order creation error:', error);
       toast.error('Failed to create order');
     } finally {
       setIsLoading(false);
