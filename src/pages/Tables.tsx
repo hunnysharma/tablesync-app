@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Layout, PageHeader } from '@/components/layout/Layout';
 import { TableGrid } from '@/components/dashboard/TableGrid';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import { fetchTables } from '@/api/tableService';
 const Tables = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const navigate = useNavigate();
   
   const { data: tables = [], isLoading, refetch } = useQuery({
     queryKey: ['tables'],
@@ -34,7 +36,7 @@ const Tables = () => {
         title="Tables" 
         subtitle="Manage and view the status of all tables"
       >
-        <Button>
+        <Button onClick={() => navigate('/tables/new')}>
           Add New Table
         </Button>
       </PageHeader>
