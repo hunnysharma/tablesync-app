@@ -13,7 +13,7 @@ export const fetchBills = async (): Promise<Bill[]> => {
 
     // Then fetch bill items separately
     const { data: billItems, error: itemsError } = await supabase
-      .from('bill_items')
+      .from('bills')
       .select('*');
       
     if (itemsError) throw itemsError;
@@ -45,7 +45,7 @@ export const fetchBill = async (id: string): Promise<Bill | null> => {
 
     // Then fetch its items
     const { data: items, error: itemsError } = await supabase
-      .from('bill_items')
+      .from('bills')
       .select('*')
       .eq('bill_id', id);
     

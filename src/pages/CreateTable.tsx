@@ -26,12 +26,6 @@ const tableSchema = z.object({
   capacity: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
     message: 'Capacity must be a positive number',
   }),
-  positionX: z.string().refine((val) => !isNaN(Number(val)), {
-    message: 'Position X must be a number',
-  }),
-  positionY: z.string().refine((val) => !isNaN(Number(val)), {
-    message: 'Position Y must be a number',
-  }),
 });
 
 type TableFormValues = z.infer<typeof tableSchema>;
@@ -46,8 +40,6 @@ const CreateTable = () => {
     defaultValues: {
       number: '',
       capacity: '4',
-      positionX: '0',
-      positionY: '0',
     },
   });
 
@@ -59,10 +51,7 @@ const CreateTable = () => {
       await createTable({
         number: Number(values.number),
         capacity: Number(values.capacity),
-        positionX: Number(values.positionX),
-        positionY: Number(values.positionY),
         status: 'available',
-        cafe_id: currentCafe.id
       });
       
       toast.success('Table created successfully!');
@@ -107,36 +96,6 @@ const CreateTable = () => {
                 </FormItem>
               )}
             />
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="positionX"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Position X</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="positionY"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Position Y</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
 
             <div className="flex justify-end space-x-4">
               <Button type="button" variant="outline" onClick={() => navigate('/tables')}>

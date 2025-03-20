@@ -201,7 +201,7 @@ const Dashboard = () => {
                     <div key={order.id} className="flex items-start justify-between p-3 bg-muted/50 rounded-lg animate-slide-in">
                       <div>
                         <div className="flex items-center">
-                          <span className="font-medium">Table {order.tableNumber}</span>
+                          <span className="font-medium">Table {order.table_number}</span>
                           <StatusBadge status={order.status} className="ml-2 text-xs" />
                         </div>
                         <div className="text-sm text-muted-foreground mt-1">
