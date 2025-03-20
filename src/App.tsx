@@ -18,6 +18,9 @@ import CreateTable from "./pages/CreateTable";
 import AddMenuItem from "./pages/AddMenuItem";
 import PrintBill from "./pages/PrintBill";
 import CreateOrder from "./pages/CreateOrder";
+import OrderDetails from "./pages/OrderDetails";
+import TableDetails from "./pages/TableDetails";
+import BillDetails from "./pages/BillDetails";
 
 const queryClient = new QueryClient();
 
@@ -34,13 +37,24 @@ const App = () => (
             
             {/* Protected routes */}
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            
+            {/* Tables */}
             <Route path="/tables" element={<ProtectedRoute><Tables /></ProtectedRoute>} />
             <Route path="/tables/new" element={<ProtectedRoute><CreateTable /></ProtectedRoute>} />
+            <Route path="/tables/:id" element={<ProtectedRoute><TableDetails /></ProtectedRoute>} />
+            
+            {/* Menu */}
             <Route path="/menu" element={<ProtectedRoute><Menu /></ProtectedRoute>} />
             <Route path="/menu/new" element={<ProtectedRoute><AddMenuItem /></ProtectedRoute>} />
+            
+            {/* Orders */}
             <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
             <Route path="/orders/new" element={<ProtectedRoute><CreateOrder /></ProtectedRoute>} />
+            <Route path="/orders/:id" element={<ProtectedRoute><OrderDetails /></ProtectedRoute>} />
+            
+            {/* Bills */}
             <Route path="/bills" element={<ProtectedRoute><Bills /></ProtectedRoute>} />
+            <Route path="/bills/:id" element={<ProtectedRoute><BillDetails /></ProtectedRoute>} />
             <Route path="/bills/:id/print" element={<ProtectedRoute><PrintBill /></ProtectedRoute>} />
             
             {/* 404 route */}

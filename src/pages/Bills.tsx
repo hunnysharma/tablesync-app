@@ -130,14 +130,18 @@ const Bills = () => {
                     <div className="text-right">
                       <div className="font-medium">${bill.total.toFixed(2)}</div>
                       <div className="text-xs text-muted-foreground">
-                        Bill #{bill.id}
+                        Bill #{bill.id.substring(0, 8)}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="icon" onClick={(e) => {
-                        e.stopPropagation();
-                        alert('Printing bill...');
-                      }}>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/bills/${bill.id}/print`);
+                        }}
+                      >
                         <Printer className="h-4 w-4" />
                       </Button>
                       <ChevronRight className="h-5 w-5 text-muted-foreground" />

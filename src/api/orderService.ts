@@ -66,8 +66,13 @@ export const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'u
     
     // Then create the order items
     const orderItems = items.map(item => ({
-      ...item,
       order_id: order.id,
+      menu_item_id: item.menuItemId,
+      menu_item_name: item.menuItemName,
+      quantity: item.quantity,
+      price: item.price,
+      notes: item.notes || null,
+      status: item.status
     }));
     
     const { error: itemsError } = await supabase
@@ -91,6 +96,34 @@ export const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'u
     return {
       ...order,
       items,
+      createdAt: new Date(order.created_at || Date.now()),
+      updatedAt: new Date(order.updated_at || Date.now()),
+    };
+  } catch (error) {
+    handleSupabaseError(error as Error);
+    return null;
+  }
+};
+
+export const updateOrder = async (id: string, orderData: Partial<Order>): Promise<Order | null> => {
+  try {
+    // Update the order
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .update({
+        ...orderData,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select('*, items:order_items(*)')
+      .single();
+    
+    if (orderError) throw orderError;
+    
+    if (!order) return null;
+    
+    return {
+      ...order,
       createdAt: new Date(order.created_at || Date.now()),
       updatedAt: new Date(order.updated_at || Date.now()),
     };

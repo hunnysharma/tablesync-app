@@ -1,19 +1,19 @@
 
 import { Table } from '@/utils/types';
 import { TableCard } from '@/components/tables/TableCard';
-import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface TableGridProps {
   tables: Table[];
   isLoading?: boolean;
+  onTableClick?: (tableId: string) => void;
 }
 
-export function TableGrid({ tables, isLoading = false }: TableGridProps) {
-  const navigate = useNavigate();
-  
+export function TableGrid({ tables, isLoading = false, onTableClick }: TableGridProps) {
   const handleTableClick = (table: Table) => {
-    navigate(`/tables/${table.id}`);
+    if (onTableClick) {
+      onTableClick(table.id);
+    }
   };
   
   if (isLoading) {
@@ -39,7 +39,7 @@ export function TableGrid({ tables, isLoading = false }: TableGridProps) {
         <TableCard 
           key={table.id} 
           table={table} 
-          onClick={handleTableClick}
+          onClick={() => handleTableClick(table)}
         />
       ))}
     </div>
