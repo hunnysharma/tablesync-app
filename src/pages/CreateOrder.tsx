@@ -26,15 +26,16 @@ import { OrderFormFields } from '@/components/orders/OrderFormFields';
 import { OrderItemsList } from '@/components/orders/OrderItemsList';
 import { MenuItemPicker } from '@/components/orders/MenuItemPicker';
 
+// Updated schema to use snake_case
 const orderSchema = z.object({
-  tableId: z.string().min(1, 'Table is required'),
+  table_id: z.string().min(1, 'Table is required'),
   customerName: z.string().optional(),
   notes: z.string().optional(),
   items: z.array(
     z.object({
-      id: z.string().min(1),
-      menuItemId: z.string().min(1),
-      menuItemName: z.string().min(1),
+      id: z.string(),
+      menu_item_id: z.string(),
+      menu_item_name: z.string(),
       quantity: z.number().min(1),
       price: z.number().min(0),
       notes: z.string().optional(),
@@ -56,7 +57,7 @@ const CreateOrder = () => {
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderSchema),
     defaultValues: {
-      tableId: '',
+      table_id: '',
       customerName: '',
       notes: '',
       items: [],
@@ -87,8 +88,8 @@ const CreateOrder = () => {
   const handleAddItem = (item: MenuItem, quantity: number, notes: string) => {
     const newItem: OrderItem = {
       id: uuidv4(),
-      menuItemId: item.id,
-      menuItemName: item.name,
+      menu_item_id: item.id,
+      menu_item_name: item.name,
       quantity,
       price: item.price,
       notes,
@@ -115,7 +116,7 @@ const CreateOrder = () => {
     
     setIsLoading(true);
     try {
-      const selectedTable = tables.find(t => t.id === values.tableId);
+      const selectedTable = tables.find(t => t.id === values.table_id);
       if (!selectedTable) {
         throw new Error('Selected table not found');
       }
@@ -123,14 +124,14 @@ const CreateOrder = () => {
       const { subtotal, tax, total } = calculateTotals(values.items);
       
       const result = await createOrder({
-        tableId: values.tableId,
+        table_id: values.table_id,
         table_number: selectedTable.number,
         items: values.items,
         status: 'active',
         subtotal,
         tax,
         total,
-        paymentStatus: 'pending',
+        payment_status: 'pending',
       });
       
       if (result) {

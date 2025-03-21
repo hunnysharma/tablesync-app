@@ -5,8 +5,10 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchBill } from '@/api/billService';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Printer, ArrowLeft } from 'lucide-react';
+import { Printer, ArrowLeft, Download } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 const PrintBill = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,6 +36,36 @@ const PrintBill = () => {
       window.print();
       document.body.innerHTML = originalContents;
       window.location.reload();
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!printRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(printRef.current, {
+        scale: 2,
+        logging: false,
+        useCORS: true
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const imgWidth = 210;
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save(`bill-${bill?.id.substring(0, 8).toUpperCase()}.pdf`);
+      
+      toast.success('Bill downloaded as PDF');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error('Failed to download PDF');
     }
   };
   
@@ -96,7 +128,7 @@ const PrintBill = () => {
             </div>
             <div className="text-right">
               <p><strong>Date:</strong> {formatDate(bill.createdAt)}</p>
-              <p><strong>Status:</strong> {bill.paymentStatus.toUpperCase()}</p>
+              <p><strong>Status:</strong> {bill.payment_status.toUpperCase()}</p>
             </div>
           </div>
           
@@ -113,7 +145,7 @@ const PrintBill = () => {
               <tbody>
                 {bill.items.map((item, index) => (
                   <tr key={index} className="border-b border-gray-200">
-                    <td className="py-2">{item.menuItemName}</td>
+                    <td className="py-2">{item.menu_item_name}</td>
                     <td className="py-2 text-center">{item.quantity}</td>
                     <td className="py-2 text-right">${item.price.toFixed(2)}</td>
                     <td className="py-2 text-right">${(item.quantity * item.price).toFixed(2)}</td>
@@ -139,7 +171,7 @@ const PrintBill = () => {
           </div>
           
           <div className="mt-8 pt-6 border-t border-gray-300 text-center text-sm text-muted-foreground">
-            <p>Payment Method: {bill.paymentMethod ? bill.paymentMethod.toUpperCase() : 'PENDING'}</p>
+            <p>Payment Method: {bill.payment_method ? bill.payment_method.toUpperCase() : 'PENDING'}</p>
             {bill.paidAt && <p>Paid on: {formatDate(bill.paidAt)}</p>}
             <p className="mt-4">Thank you for your visit!</p>
           </div>
@@ -154,6 +186,10 @@ const PrintBill = () => {
         <Button onClick={handlePrint}>
           <Printer className="mr-2 h-4 w-4" />
           Print Receipt
+        </Button>
+        <Button variant="default" onClick={handleDownloadPDF}>
+          <Download className="mr-2 h-4 w-4" />
+          Download PDF
         </Button>
       </div>
     </div>

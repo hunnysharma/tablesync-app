@@ -23,17 +23,17 @@ export const fetchBills = async (): Promise<Bill[]> => {
     return (bills || []).map(bill => ({
       ...bill,
       id: bill.id,
-      orderId: bill.order_id,
+      order_id: bill.order_id,
       table_number: bill.table_number,
       subtotal: bill.subtotal,
       tax: bill.tax,
       total: bill.total,
-      paymentStatus: bill.payment_status,
-      paymentMethod: bill.payment_method,
+      payment_status: bill.payment_status,
+      payment_method: bill.payment_method,
       items: billItems?.filter(item => item.order_id === bill.order_id).map(item => ({
         id: item.id,
-        menuItemId: item.menu_item_id,
-        menuItemName: item.menu_item_name,
+        menu_item_id: item.menu_item_id,
+        menu_item_name: item.menu_item_name,
         quantity: item.quantity,
         price: item.price || 0, // Ensure price is never undefined
         notes: item.notes,
@@ -71,17 +71,17 @@ export const fetchBill = async (id: string): Promise<Bill | null> => {
     return {
       ...bill,
       id: bill.id,
-      orderId: bill.order_id,
+      order_id: bill.order_id,
       table_number: bill.table_number,
       subtotal: bill.subtotal,
       tax: bill.tax,
       total: bill.total,
-      paymentStatus: bill.payment_status,
-      paymentMethod: bill.payment_method,
+      payment_status: bill.payment_status,
+      payment_method: bill.payment_method,
       items: items?.map(item => ({
         id: item.id,
-        menuItemId: item.menu_item_id,
-        menuItemName: item.menu_item_name,
+        menu_item_id: item.menu_item_id,
+        menu_item_name: item.menu_item_name,
         quantity: item.quantity,
         price: item.price || 0, // Ensure price is never undefined
         notes: item.notes,
@@ -101,12 +101,12 @@ export const updateBill = async (id: string, billData: Partial<Bill>): Promise<B
     const updates: any = {};
     
     // Map from our interface to the database schema
-    if (billData.paymentStatus !== undefined) updates.payment_status = billData.paymentStatus;
-    if (billData.paymentMethod !== undefined) updates.payment_method = billData.paymentMethod;
+    if (billData.payment_status !== undefined) updates.payment_status = billData.payment_status;
+    if (billData.payment_method !== undefined) updates.payment_method = billData.payment_method;
     
     // Add updated_at and paid_at if relevant
     updates.updated_at = new Date().toISOString();
-    if (billData.paymentStatus === 'paid' && !billData.paidAt) {
+    if (billData.payment_status === 'paid' && !billData.paidAt) {
       updates.paid_at = new Date().toISOString();
     }
     
@@ -130,17 +130,17 @@ export const updateBill = async (id: string, billData: Partial<Bill>): Promise<B
     return {
       ...data,
       id: data.id,
-      orderId: data.order_id,
+      order_id: data.order_id,
       table_number: data.table_number,
       subtotal: data.subtotal,
       tax: data.tax,
       total: data.total,
-      paymentStatus: data.payment_status,
-      paymentMethod: data.payment_method,
+      payment_status: data.payment_status,
+      payment_method: data.payment_method,
       items: items?.map(item => ({
         id: item.id,
-        menuItemId: item.menu_item_id,
-        menuItemName: item.menu_item_name,
+        menu_item_id: item.menu_item_id,
+        menu_item_name: item.menu_item_name,
         quantity: item.quantity,
         price: item.price || 0, // Ensure price is never undefined
         notes: item.notes,
@@ -196,8 +196,8 @@ export const createBill = async (orderId: string): Promise<Bill | null> => {
     const orderItems = order.items || [];
     const transformedItems = orderItems.map((item: any) => ({
       id: item.id,
-      menuItemId: item.menu_item_id,
-      menuItemName: item.menu_item_name,
+      menu_item_id: item.menu_item_id,
+      menu_item_name: item.menu_item_name,
       quantity: item.quantity,
       price: item.price || 0, // Ensure price is never undefined
       notes: item.notes,
@@ -207,12 +207,12 @@ export const createBill = async (orderId: string): Promise<Bill | null> => {
     return {
       ...bill,
       id: bill.id,
-      orderId: bill.order_id,
+      order_id: bill.order_id,
       table_number: bill.table_number,
       subtotal: bill.subtotal,
       tax: bill.tax,
       total: bill.total,
-      paymentStatus: bill.payment_status,
+      payment_status: bill.payment_status,
       items: transformedItems,
       createdAt: new Date(bill.created_at || Date.now()),
       paidAt: undefined,

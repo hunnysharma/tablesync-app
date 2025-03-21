@@ -57,7 +57,7 @@ export function OrderItemComponent({
       <div className="flex-1">
         <div className="flex items-start justify-between">
           <div>
-            <h4 className="font-medium">{item.menuItemName}</h4>
+            <h4 className="font-medium">{item.menu_item_name}</h4>
             {item.notes && (
               <p className="text-sm text-muted-foreground mt-1">{item.notes}</p>
             )}
