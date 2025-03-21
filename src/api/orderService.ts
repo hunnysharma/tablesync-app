@@ -1,7 +1,6 @@
 
 import { supabase, handleSupabaseError } from '@/lib/supabase';
 import { Order, OrderItem } from '@/utils/types';
-import { createBill } from './billService';
 
 export const fetchOrders = async (): Promise<Order[]> => {
   try {
@@ -68,8 +67,8 @@ export const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'u
     // Then create the order items
     const orderItems = items.map(item => ({
       order_id: order.id,
-      menu_item_id: item.menu_item_id,
-      menu_item_name: item.menu_item_name,
+      menu_item_id: item.menuItemId,
+      menu_item_name: item.menuItemName,
       quantity: item.quantity,
       price: item.price,
       notes: item.notes || null,
@@ -89,7 +88,7 @@ export const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'u
         status: 'occupied',
         current_order_id: order.id,
       })
-      .eq('id', orderDetails.table_id);
+      .eq('id', orderDetails.tableId);
     
     if (tableError) throw tableError;
     
@@ -123,58 +122,10 @@ export const updateOrder = async (id: string, orderData: Partial<Order>): Promis
     
     if (!order) return null;
     
-    // If order is marked as completed, create a bill
-    if (orderData.status === 'completed') {
-      // Create a bill
-      await createBill(id);
-      
-      // Make the table available again
-      const { error: tableError } = await supabase
-        .from('tables')
-        .update({ 
-          status: 'available',
-          current_order_id: null,
-        })
-        .eq('id', order.table_id);
-      
-      if (tableError) throw tableError;
-    }
-    
     return {
       ...order,
       createdAt: new Date(order.created_at || Date.now()),
       updatedAt: new Date(order.updated_at || Date.now()),
-    };
-  } catch (error) {
-    handleSupabaseError(error as Error);
-    return null;
-  }
-};
-
-export const updateOrderItemStatus = async (
-  itemId: string, 
-  status: 'pending' | 'preparing' | 'ready' | 'served' | 'cancelled'
-): Promise<OrderItem | null> => {
-  try {
-    const { data, error } = await supabase
-      .from('order_items')
-      .update({ status })
-      .eq('id', itemId)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    
-    if (!data) return null;
-    
-    return {
-      id: data.id,
-      menu_item_id: data.menu_item_id,
-      menu_item_name: data.menu_item_name,
-      quantity: data.quantity,
-      price: data.price || 0,
-      notes: data.notes || undefined,
-      status: data.status,
     };
   } catch (error) {
     handleSupabaseError(error as Error);

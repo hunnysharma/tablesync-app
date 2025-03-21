@@ -1,44 +1,27 @@
 
 import { supabase, handleSupabaseError } from '@/lib/supabase';
-import { Bill, OrderItem } from '@/utils/types';
+import { Bill } from '@/utils/types';
 
 export const fetchBills = async (): Promise<Bill[]> => {
   try {
-    // Fetch bills
+    // First fetch bills
     const { data: bills, error: billsError } = await supabase
       .from('bills')
       .select('*');
     
     if (billsError) throw billsError;
 
-    // Fetch all bill items
+    // Then fetch bill items separately
     const { data: billItems, error: itemsError } = await supabase
-      .from('order_items')
-      .select('*')
-      .in('order_id', bills?.map(bill => bill.order_id) || []);
+      .from('bills')
+      .select('*');
       
     if (itemsError) throw itemsError;
     
-    // Map bills to our expected format
+    // Combine the data
     return (bills || []).map(bill => ({
       ...bill,
-      id: bill.id,
-      order_id: bill.order_id,
-      table_number: bill.table_number,
-      subtotal: bill.subtotal,
-      tax: bill.tax,
-      total: bill.total,
-      payment_status: bill.payment_status,
-      payment_method: bill.payment_method,
-      items: billItems?.filter(item => item.order_id === bill.order_id).map(item => ({
-        id: item.id,
-        menu_item_id: item.menu_item_id,
-        menu_item_name: item.menu_item_name,
-        quantity: item.quantity,
-        price: item.price || 0, // Ensure price is never undefined
-        notes: item.notes,
-        status: item.status
-      })) || [],
+      items: billItems?.filter(item => item.bill_id === bill.id) || [],
       createdAt: new Date(bill.created_at || Date.now()),
       paidAt: bill.paid_at ? new Date(bill.paid_at) : undefined,
     }));
@@ -60,33 +43,17 @@ export const fetchBill = async (id: string): Promise<Bill | null> => {
     if (billError) throw billError;
     if (!bill) return null;
 
-    // Then fetch its items from order_items
+    // Then fetch its items
     const { data: items, error: itemsError } = await supabase
-      .from('order_items')
+      .from('bills')
       .select('*')
-      .eq('order_id', bill.order_id);
+      .eq('bill_id', id);
     
     if (itemsError) throw itemsError;
     
     return {
       ...bill,
-      id: bill.id,
-      order_id: bill.order_id,
-      table_number: bill.table_number,
-      subtotal: bill.subtotal,
-      tax: bill.tax,
-      total: bill.total,
-      payment_status: bill.payment_status,
-      payment_method: bill.payment_method,
-      items: items?.map(item => ({
-        id: item.id,
-        menu_item_id: item.menu_item_id,
-        menu_item_name: item.menu_item_name,
-        quantity: item.quantity,
-        price: item.price || 0, // Ensure price is never undefined
-        notes: item.notes,
-        status: item.status
-      })) || [],
+      items: items || [],
       createdAt: new Date(bill.created_at || Date.now()),
       paidAt: bill.paid_at ? new Date(bill.paid_at) : undefined,
     };
@@ -98,15 +65,13 @@ export const fetchBill = async (id: string): Promise<Bill | null> => {
 
 export const updateBill = async (id: string, billData: Partial<Bill>): Promise<Bill | null> => {
   try {
-    const updates: any = {};
+    const updates: any = {
+      ...billData,
+      updated_at: new Date().toISOString(),
+    };
     
-    // Map from our interface to the database schema
-    if (billData.payment_status !== undefined) updates.payment_status = billData.payment_status;
-    if (billData.payment_method !== undefined) updates.payment_method = billData.payment_method;
-    
-    // Add updated_at and paid_at if relevant
-    updates.updated_at = new Date().toISOString();
-    if (billData.payment_status === 'paid' && !billData.paidAt) {
+    // Add paid_at if marking as paid
+    if (billData.paymentStatus === 'paid' && !billData.paidAt) {
       updates.paid_at = new Date().toISOString();
     }
     
@@ -119,33 +84,9 @@ export const updateBill = async (id: string, billData: Partial<Bill>): Promise<B
     
     if (error) throw error;
     
-    // Fetch the bill items after update
-    const { data: items, error: itemsError } = await supabase
-      .from('order_items')
-      .select('*')
-      .eq('order_id', data.order_id);
-      
-    if (itemsError) throw itemsError;
-    
     return {
       ...data,
-      id: data.id,
-      order_id: data.order_id,
-      table_number: data.table_number,
-      subtotal: data.subtotal,
-      tax: data.tax,
-      total: data.total,
-      payment_status: data.payment_status,
-      payment_method: data.payment_method,
-      items: items?.map(item => ({
-        id: item.id,
-        menu_item_id: item.menu_item_id,
-        menu_item_name: item.menu_item_name,
-        quantity: item.quantity,
-        price: item.price || 0, // Ensure price is never undefined
-        notes: item.notes,
-        status: item.status
-      })) || [],
+      items: [], // We don't have items here, would need to fetch separately if needed
       createdAt: new Date(data.created_at || Date.now()),
       paidAt: data.paid_at ? new Date(data.paid_at) : undefined,
     };
@@ -185,7 +126,7 @@ export const createBill = async (orderId: string): Promise<Bill | null> => {
     if (billError) throw billError;
     if (!bill) throw new Error('Failed to create bill');
     
-    // Update order payment status to billed
+    // Update order payment status
     const { error: updateError } = await supabase
       .from('orders')
       .update({ payment_status: 'billed' })
@@ -193,27 +134,9 @@ export const createBill = async (orderId: string): Promise<Bill | null> => {
     
     if (updateError) throw updateError;
     
-    const orderItems = order.items || [];
-    const transformedItems = orderItems.map((item: any) => ({
-      id: item.id,
-      menu_item_id: item.menu_item_id,
-      menu_item_name: item.menu_item_name,
-      quantity: item.quantity,
-      price: item.price || 0, // Ensure price is never undefined
-      notes: item.notes,
-      status: item.status
-    }));
-    
     return {
       ...bill,
-      id: bill.id,
-      order_id: bill.order_id,
-      table_number: bill.table_number,
-      subtotal: bill.subtotal,
-      tax: bill.tax,
-      total: bill.total,
-      payment_status: bill.payment_status,
-      items: transformedItems,
+      items: order.items || [],
       createdAt: new Date(bill.created_at || Date.now()),
       paidAt: undefined,
     };

@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Table, MenuItem, OrderItem } from '@/utils/types';
+import { Table, MenuItem, OrderItem as OrderItemType } from '@/utils/types';
 import {
   Form,
   FormControl,
@@ -26,16 +26,15 @@ import { OrderFormFields } from '@/components/orders/OrderFormFields';
 import { OrderItemsList } from '@/components/orders/OrderItemsList';
 import { MenuItemPicker } from '@/components/orders/MenuItemPicker';
 
-// Updated schema to use snake_case
 const orderSchema = z.object({
-  table_id: z.string().min(1, 'Table is required'),
+  tableId: z.string().min(1, 'Table is required'),
   customerName: z.string().optional(),
   notes: z.string().optional(),
   items: z.array(
     z.object({
-      id: z.string(),
-      menu_item_id: z.string(),
-      menu_item_name: z.string(),
+      id: z.string().min(1),
+      menuItemId: z.string().min(1),
+      menuItemName: z.string().min(1),
       quantity: z.number().min(1),
       price: z.number().min(0),
       notes: z.string().optional(),
@@ -50,14 +49,14 @@ const CreateOrder = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tables, setTables] = useState<Table[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [selectedItems, setSelectedItems] = useState<OrderItem[]>([]);
+  const [selectedItems, setSelectedItems] = useState<OrderItemType[]>([]);
   const navigate = useNavigate();
   const { currentCafe } = useAuth();
 
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderSchema),
     defaultValues: {
-      table_id: '',
+      tableId: '',
       customerName: '',
       notes: '',
       items: [],
@@ -86,10 +85,10 @@ const CreateOrder = () => {
   }, [selectedItems, form]);
 
   const handleAddItem = (item: MenuItem, quantity: number, notes: string) => {
-    const newItem: OrderItem = {
+    const newItem: OrderItemType = {
       id: uuidv4(),
-      menu_item_id: item.id,
-      menu_item_name: item.name,
+      menuItemId: item.id,
+      menuItemName: item.name,
       quantity,
       price: item.price,
       notes,
@@ -103,7 +102,7 @@ const CreateOrder = () => {
     setSelectedItems(selectedItems.filter(item => item.id !== itemId));
   };
 
-  const calculateTotals = (items: OrderItem[]) => {
+  const calculateTotals = (items: OrderItemType[]) => {
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const tax = subtotal * 0.1; // Assuming 10% tax
     const total = subtotal + tax;
@@ -116,7 +115,7 @@ const CreateOrder = () => {
     
     setIsLoading(true);
     try {
-      const selectedTable = tables.find(t => t.id === values.table_id);
+      const selectedTable = tables.find(t => t.id === values.tableId);
       if (!selectedTable) {
         throw new Error('Selected table not found');
       }
@@ -124,14 +123,14 @@ const CreateOrder = () => {
       const { subtotal, tax, total } = calculateTotals(values.items);
       
       const result = await createOrder({
-        table_id: values.table_id,
-        table_number: selectedTable.number,
+        tableId: values.tableId,
         items: values.items,
         status: 'active',
         subtotal,
         tax,
         total,
-        payment_status: 'pending',
+        paymentStatus: 'pending',
+        table_number: selectedTable.number
       });
       
       if (result) {

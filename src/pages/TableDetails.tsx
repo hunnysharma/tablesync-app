@@ -28,8 +28,8 @@ const TableDetails = () => {
         setTable(tableData);
         
         // If table has a current order, fetch it
-        if (tableData?.current_order_id) {
-          const orderData = await fetchOrder(tableData.current_order_id);
+        if (tableData?.currentOrderId) {
+          const orderData = await fetchOrder(tableData.currentOrderId);
           setCurrentOrder(orderData);
         }
       } catch (error) {
@@ -45,7 +45,7 @@ const TableDetails = () => {
   
   const handleCreateOrder = () => {
     if (table) {
-      navigate(`/orders/new?table_id=${table.id}`);
+      navigate(`/orders/new?tableId=${table.id}`);
     }
   };
   

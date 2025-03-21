@@ -6,7 +6,7 @@ export interface Table {
   number: number;
   capacity: number;
   status: TableStatus;
-  current_order_id?: string;
+  currentOrderId?: string;
 }
 
 export interface Category {
@@ -27,8 +27,8 @@ export interface MenuItem {
 
 export interface OrderItem {
   id: string;
-  menu_item_id: string;
-  menu_item_name: string;
+  menuItemId: string;
+  menuItemName: string;
   quantity: number;
   price: number;
   notes?: string;
@@ -37,7 +37,7 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
-  table_id: string;
+  tableId: string;
   table_number: number;
   items: OrderItem[];
   status: 'active' | 'completed' | 'cancelled';
@@ -46,20 +46,20 @@ export interface Order {
   subtotal: number;
   tax: number;
   total: number;
-  payment_status: 'pending' | 'paid' | 'billed';
-  payment_method?: 'cash' | 'card' | 'upi';
+  paymentStatus: 'pending' | 'paid';
+  paymentMethod?: 'cash' | 'card' | 'upi';
 }
 
 export interface Bill {
   id: string;
-  order_id: string;
+  orderId: string;
   table_number: number;
   items: OrderItem[];
   subtotal: number;
   tax: number;
   total: number;
-  payment_status: 'pending' | 'paid';
-  payment_method?: 'cash' | 'card' | 'upi';
+  paymentStatus: 'pending' | 'paid';
+  paymentMethod?: 'cash' | 'card' | 'upi';
   createdAt: Date;
   paidAt?: Date;
 }
