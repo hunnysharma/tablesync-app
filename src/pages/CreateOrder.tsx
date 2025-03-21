@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Table, MenuItem, OrderItem as OrderItemType } from '@/utils/types';
+import { Table, MenuItem, OrderItem } from '@/utils/types';
 import {
   Form,
   FormControl,
@@ -49,7 +49,7 @@ const CreateOrder = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tables, setTables] = useState<Table[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [selectedItems, setSelectedItems] = useState<OrderItemType[]>([]);
+  const [selectedItems, setSelectedItems] = useState<OrderItem[]>([]);
   const navigate = useNavigate();
   const { currentCafe } = useAuth();
 
@@ -85,7 +85,7 @@ const CreateOrder = () => {
   }, [selectedItems, form]);
 
   const handleAddItem = (item: MenuItem, quantity: number, notes: string) => {
-    const newItem: OrderItemType = {
+    const newItem: OrderItem = {
       id: uuidv4(),
       menuItemId: item.id,
       menuItemName: item.name,
@@ -102,7 +102,7 @@ const CreateOrder = () => {
     setSelectedItems(selectedItems.filter(item => item.id !== itemId));
   };
 
-  const calculateTotals = (items: OrderItemType[]) => {
+  const calculateTotals = (items: OrderItem[]) => {
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const tax = subtotal * 0.1; // Assuming 10% tax
     const total = subtotal + tax;
@@ -124,13 +124,13 @@ const CreateOrder = () => {
       
       const result = await createOrder({
         tableId: values.tableId,
+        table_number: selectedTable.number,
         items: values.items,
         status: 'active',
         subtotal,
         tax,
         total,
         paymentStatus: 'pending',
-        table_number: selectedTable.number
       });
       
       if (result) {

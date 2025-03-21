@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { OrderItemComponent } from '@/components/orders/OrderItem';
 import { fetchOrder, updateOrder } from '@/api/orderService';
+import { createBill } from '@/api/billService';
 import { toast } from 'sonner';
-import { Order } from '@/utils/types';
-import { ArrowLeft, CheckCircle, Printer } from 'lucide-react';
+import { Order, OrderItem } from '@/utils/types';
+import { ArrowLeft, CheckCircle, Printer, FileClock } from 'lucide-react';
 
 const OrderDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +18,7 @@ const OrderDetails = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [isCreatingBill, setIsCreatingBill] = useState(false);
 
   useEffect(() => {
     const loadOrder = async () => {
@@ -58,6 +60,27 @@ const OrderDetails = () => {
       toast.error('Failed to complete order');
     } finally {
       setIsCompleting(false);
+    }
+  };
+  
+  const handleCreateBill = async () => {
+    if (!order) return;
+    
+    setIsCreatingBill(true);
+    try {
+      const bill = await createBill(order.id);
+      
+      if (bill) {
+        toast.success('Bill created successfully!');
+        navigate(`/bills/${bill.id}`);
+      } else {
+        throw new Error('Failed to create bill');
+      }
+    } catch (error) {
+      console.error('Error creating bill:', error);
+      toast.error('Failed to create bill');
+    } finally {
+      setIsCreatingBill(false);
     }
   };
   
@@ -128,6 +151,7 @@ const OrderDetails = () => {
                     <OrderItemComponent
                       key={item.id}
                       item={item}
+                      canChangeStatus={order.status === 'active'}
                     />
                   ))}
                 </div>
@@ -164,7 +188,7 @@ const OrderDetails = () => {
               </div>
             </CardContent>
             <CardFooter className="flex-col space-y-2">
-              {order.status !== 'completed' && (
+              {order.status === 'active' && (
                 <Button 
                   className="w-full"
                   onClick={handleCompleteOrder}
@@ -175,6 +199,19 @@ const OrderDetails = () => {
                   {isCompleting ? 'Completing...' : 'Complete Order'}
                 </Button>
               )}
+              
+              {order.status === 'active' && (
+                <Button 
+                  className="w-full"
+                  onClick={handleCreateBill}
+                  disabled={isCreatingBill}
+                  variant="outline"
+                >
+                  <FileClock className="h-4 w-4 mr-2" />
+                  {isCreatingBill ? 'Creating...' : 'Create Bill'}
+                </Button>
+              )}
+              
               <Button 
                 className="w-full"
                 variant="outline"

@@ -4,20 +4,54 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import { toast } from 'sonner';
+import { updateOrderItemStatus } from '@/api/orderService';
 
 interface OrderItemProps {
   item: OrderItemType;
   editable?: boolean;
+  canChangeStatus?: boolean;
   onQuantityChange?: (id: string, quantity: number) => void;
   onRemove?: (id: string) => void;
+  onStatusChange?: (id: string, status: OrderItemType['status']) => void;
 }
 
 export function OrderItemComponent({ 
   item, 
   editable = false,
+  canChangeStatus = false,
   onQuantityChange,
-  onRemove
+  onRemove,
+  onStatusChange
 }: OrderItemProps) {
+  const handleStatusChange = async (newStatus: string) => {
+    try {
+      if (onStatusChange) {
+        onStatusChange(item.id, newStatus as OrderItemType['status']);
+      } else {
+        // If no callback is provided, update directly
+        const result = await updateOrderItemStatus(
+          item.id, 
+          newStatus as OrderItemType['status']
+        );
+        
+        if (result) {
+          toast.success(`Status updated to ${newStatus}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast.error('Failed to update status');
+    }
+  };
+  
   return (
     <div className="flex items-center justify-between py-3 border-b border-border/40 last:border-0 animate-slide-in">
       <div className="flex-1">
@@ -29,7 +63,7 @@ export function OrderItemComponent({
             )}
           </div>
           <span className="font-medium ml-2">
-            ${(item.price * item.quantity).toFixed(2)}
+            ${((item.price || 0) * item.quantity).toFixed(2)}
           </span>
         </div>
         
@@ -75,11 +109,30 @@ export function OrderItemComponent({
               </Button>
             </div>
           ) : (
-            <div className="flex items-center">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm text-muted-foreground">
-                {item.quantity} × ${item.price.toFixed(2)}
+                {item.quantity} × ${(item.price || 0).toFixed(2)}
               </span>
-              <StatusBadge status={item.status} className="ml-2 text-xs" />
+              
+              {canChangeStatus ? (
+                <Select
+                  value={item.status}
+                  onValueChange={handleStatusChange}
+                >
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="preparing">Preparing</SelectItem>
+                    <SelectItem value="ready">Ready</SelectItem>
+                    <SelectItem value="served">Served</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <StatusBadge status={item.status} className="text-xs" />
+              )}
             </div>
           )}
         </div>
