@@ -1,12 +1,21 @@
 
 import { supabase, handleSupabaseError } from '@/lib/supabase';
 import { Table } from '@/utils/types';
+import { authContextValue } from '@/contexts/AuthContext';
 
 export const fetchTables = async (): Promise<Table[]> => {
   try {
+    const { currentCafe } = authContextValue;
+    
+    if (!currentCafe) {
+      console.error('No cafe selected');
+      return [];
+    }
+    
     const { data, error } = await supabase
       .from('tables')
-      .select('*');
+      .select('*')
+      .eq('cafe_id', currentCafe.cafe_id);
     
     if (error) throw error;
     return data || [];
@@ -34,9 +43,22 @@ export const fetchTable = async (id: string): Promise<Table | null> => {
 
 export const createTable = async (tableData: Omit<Table, 'id'>): Promise<Table | null> => {
   try {
+    const { currentUser, currentCafe } = authContextValue;
+    
+    if (!currentCafe) {
+      console.error('No cafe selected');
+      return null;
+    }
+    
+    const tableWithIds = {
+      ...tableData,
+      cafe_id: currentCafe.id,
+      user_id: currentUser?.id
+    };
+    
     const { data, error } = await supabase
       .from('tables')
-      .insert([tableData])
+      .insert([tableWithIds])
       .select()
       .single();
     

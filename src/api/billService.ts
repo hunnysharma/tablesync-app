@@ -1,13 +1,22 @@
 
 import { supabase, handleSupabaseError } from '@/lib/supabase';
 import { Bill, OrderItem } from '@/utils/types';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const fetchBills = async (): Promise<Bill[]> => {
   try {
+    const { currentCafe } = useAuth();
+    
+    if (!currentCafe) {
+      console.error('No cafe selected');
+      return [];
+    }
+    
     // Fetch bills
     const { data: bills, error: billsError } = await supabase
       .from('bills')
-      .select('*');
+      .select('*')
+      .eq('cafe_id', currentCafe.id);
     
     if (billsError) throw billsError;
 
@@ -23,17 +32,17 @@ export const fetchBills = async (): Promise<Bill[]> => {
     return (bills || []).map(bill => ({
       ...bill,
       id: bill.id,
-      orderId: bill.order_id,
+      order_id: bill.order_id,
       table_number: bill.table_number,
       subtotal: bill.subtotal,
       tax: bill.tax,
       total: bill.total,
       payment_status: bill.payment_status,
-      paymentMethod: bill.payment_method,
+      payment_method: bill.payment_method,
       items: billItems?.filter(item => item.order_id === bill.order_id).map(item => ({
         id: item.id,
-        menuItemId: item.menu_item_id,
-        menuItemName: item.menu_item_name,
+        menu_item_id: item.menu_item_id,
+        menu_item_name: item.menu_item_name,
         quantity: item.quantity,
         price: item.price || 0, // Ensure price is never undefined
         notes: item.notes,
@@ -41,6 +50,8 @@ export const fetchBills = async (): Promise<Bill[]> => {
       })) || [],
       createdAt: new Date(bill.created_at || Date.now()),
       paidAt: bill.paid_at ? new Date(bill.paid_at) : undefined,
+      cafe_id: bill.cafe_id,
+      user_id: bill.user_id
     }));
   } catch (error) {
     handleSupabaseError(error as Error);
@@ -71,17 +82,17 @@ export const fetchBill = async (id: string): Promise<Bill | null> => {
     return {
       ...bill,
       id: bill.id,
-      orderId: bill.order_id,
+      order_id: bill.order_id,
       table_number: bill.table_number,
       subtotal: bill.subtotal,
       tax: bill.tax,
       total: bill.total,
       payment_status: bill.payment_status,
-      paymentMethod: bill.payment_method,
+      payment_method: bill.payment_method,
       items: items?.map(item => ({
         id: item.id,
-        menuItemId: item.menu_item_id,
-        menuItemName: item.menu_item_name,
+        menu_item_id: item.menu_item_id,
+        menu_item_name: item.menu_item_name,
         quantity: item.quantity,
         price: item.price || 0, // Ensure price is never undefined
         notes: item.notes,
@@ -89,6 +100,8 @@ export const fetchBill = async (id: string): Promise<Bill | null> => {
       })) || [],
       createdAt: new Date(bill.created_at || Date.now()),
       paidAt: bill.paid_at ? new Date(bill.paid_at) : undefined,
+      cafe_id: bill.cafe_id,
+      user_id: bill.user_id
     };
   } catch (error) {
     handleSupabaseError(error as Error);
@@ -102,7 +115,7 @@ export const updateBill = async (id: string, billData: Partial<Bill>): Promise<B
     
     // Map from our interface to the database schema
     if (billData.payment_status !== undefined) updates.payment_status = billData.payment_status;
-    if (billData.paymentMethod !== undefined) updates.payment_method = billData.paymentMethod;
+    if (billData.payment_method !== undefined) updates.payment_method = billData.payment_method;
     
     // Add updated_at and paid_at if relevant
     updates.updated_at = new Date().toISOString();
@@ -130,17 +143,17 @@ export const updateBill = async (id: string, billData: Partial<Bill>): Promise<B
     return {
       ...data,
       id: data.id,
-      orderId: data.order_id,
+      order_id: data.order_id,
       table_number: data.table_number,
       subtotal: data.subtotal,
       tax: data.tax,
       total: data.total,
       payment_status: data.payment_status,
-      paymentMethod: data.payment_method,
+      payment_method: data.payment_method,
       items: items?.map(item => ({
         id: item.id,
-        menuItemId: item.menu_item_id,
-        menuItemName: item.menu_item_name,
+        menu_item_id: item.menu_item_id,
+        menu_item_name: item.menu_item_name,
         quantity: item.quantity,
         price: item.price || 0, // Ensure price is never undefined
         notes: item.notes,
@@ -148,6 +161,8 @@ export const updateBill = async (id: string, billData: Partial<Bill>): Promise<B
       })) || [],
       createdAt: new Date(data.created_at || Date.now()),
       paidAt: data.paid_at ? new Date(data.paid_at) : undefined,
+      cafe_id: data.cafe_id,
+      user_id: data.user_id
     };
   } catch (error) {
     handleSupabaseError(error as Error);
@@ -157,6 +172,13 @@ export const updateBill = async (id: string, billData: Partial<Bill>): Promise<B
 
 export const createBill = async (orderId: string): Promise<Bill | null> => {
   try {
+    const { currentUser, currentCafe } = useAuth();
+    
+    if (!currentCafe) {
+      console.error('No cafe selected');
+      return null;
+    }
+    
     // First fetch the order to get its details
     const { data: order, error: orderError } = await supabase
       .from('orders')
@@ -178,6 +200,8 @@ export const createBill = async (orderId: string): Promise<Bill | null> => {
         total: order.total,
         payment_status: 'pending',
         created_at: new Date().toISOString(),
+        cafe_id: currentCafe.id,
+        user_id: currentUser?.id
       }])
       .select()
       .single();
@@ -196,8 +220,8 @@ export const createBill = async (orderId: string): Promise<Bill | null> => {
     const orderItems = order.items || [];
     const transformedItems = orderItems.map((item: any) => ({
       id: item.id,
-      menuItemId: item.menu_item_id,
-      menuItemName: item.menu_item_name,
+      menu_item_id: item.menu_item_id,
+      menu_item_name: item.menu_item_name,
       quantity: item.quantity,
       price: item.price || 0, // Ensure price is never undefined
       notes: item.notes,
@@ -207,7 +231,7 @@ export const createBill = async (orderId: string): Promise<Bill | null> => {
     return {
       ...bill,
       id: bill.id,
-      orderId: bill.order_id,
+      order_id: bill.order_id,
       table_number: bill.table_number,
       subtotal: bill.subtotal,
       tax: bill.tax,
@@ -216,6 +240,8 @@ export const createBill = async (orderId: string): Promise<Bill | null> => {
       items: transformedItems,
       createdAt: new Date(bill.created_at || Date.now()),
       paidAt: undefined,
+      cafe_id: bill.cafe_id,
+      user_id: bill.user_id
     };
   } catch (error) {
     handleSupabaseError(error as Error);

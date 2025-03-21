@@ -117,10 +117,10 @@ const Bills = () => {
                       <div>{formatDate(bill.createdAt)}</div>
                       <span>·</span>
                       <div>{bill.items.length} {bill.items.length === 1 ? 'item' : 'items'}</div>
-                      {bill.paymentMethod && (
+                      {bill.payment_method && (
                         <>
                           <span>·</span>
-                          <div className="capitalize">{bill.paymentMethod}</div>
+                          <div className="capitalize">{bill.payment_method}</div>
                         </>
                       )}
                     </div>

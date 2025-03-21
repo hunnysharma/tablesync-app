@@ -15,7 +15,7 @@ export const loginUser = async (email: string, password: string): Promise<User |
     // Fetch user profile with cafe information
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('id, email, cafe_id, role, created_at, cafes:cafe_id(id, name, address, logo, created_at)')
+      .select('id, email, cafe_id, role, created_at, cafes(cafe_id, name, address, logo, created_at)')
       .eq('id', data.user.id)
       .single();
 
@@ -66,7 +66,7 @@ export const getCurrentUser = async (): Promise<User | null> => {
     // Fetch user profile with cafe information
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('id, email, cafe_id, role, created_at, cafes:cafe_id(id, name, address, logo, created_at)')
+      .select('id, email, cafe_id, role, created_at, cafes(cafe_id, name, address, logo, created_at)')
       .eq('id', data.user.id)
       .single();
 
@@ -99,7 +99,7 @@ export const getCurrentCafe = async (): Promise<Cafe | null> => {
     const { data: cafeData, error: cafeError } = await supabase
       .from('cafes')
       .select('*')
-      .eq('id', user.cafe_id)
+      .eq('cafe_id', user.cafe_id)
       .single();
 
     if (cafeError) throw cafeError;

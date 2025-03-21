@@ -6,13 +6,17 @@ export interface Table {
   number: number;
   capacity: number;
   status: TableStatus;
-  currentOrderId?: string;
+  current_order_id?: string;
+  cafe_id: string;
+  user_id?: string;
 }
 
 export interface Category {
   id: string;
   name: string;
   description?: string;
+  cafe_id: string;
+  user_id?: string;
 }
 
 export interface MenuItem {
@@ -23,12 +27,14 @@ export interface MenuItem {
   categoryId: string;
   image?: string;
   available: boolean;
+  cafe_id: string;
+  user_id?: string;
 }
 
 export interface OrderItem {
   id: string;
-  menuItemId: string;
-  menuItemName: string;
+  menu_item_id: string;
+  menu_item_name: string;
   quantity: number;
   price: number;
   notes?: string;
@@ -47,19 +53,23 @@ export interface Order {
   tax: number;
   total: number;
   payment_status: 'pending' | 'paid';
-  paymentMethod?: 'cash' | 'card' | 'upi';
+  payment_method?: 'cash' | 'card' | 'upi';
+  cafe_id: string;
+  user_id?: string;
 }
 
 export interface Bill {
   id: string;
-  orderId: string;
+  order_id: string;
   table_number: number;
   items: OrderItem[];
   subtotal: number;
   tax: number;
   total: number;
   payment_status: 'pending' | 'paid';
-  paymentMethod?: 'cash' | 'card' | 'upi';
+  payment_method?: 'cash' | 'card' | 'upi';
   createdAt: Date;
   paidAt?: Date;
+  cafe_id: string;
+  user_id?: string;
 }

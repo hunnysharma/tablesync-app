@@ -33,7 +33,7 @@ type TableFormValues = z.infer<typeof tableSchema>;
 const CreateTable = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { currentCafe } = useAuth();
+  const { currentCafe, currentUser } = useAuth();
 
   const form = useForm<TableFormValues>({
     resolver: zodResolver(tableSchema),
@@ -44,7 +44,10 @@ const CreateTable = () => {
   });
 
   const onSubmit = async (values: TableFormValues) => {
-    if (!currentCafe) return;
+    if (!currentCafe) {
+      toast.error('No cafe selected');
+      return;
+    }
     
     setIsLoading(true);
     try {
@@ -52,6 +55,8 @@ const CreateTable = () => {
         number: Number(values.number),
         capacity: Number(values.capacity),
         status: 'available',
+        cafe_id: currentCafe.id,
+        user_id: currentUser?.id
       });
       
       toast.success('Table created successfully!');
