@@ -1,11 +1,11 @@
 
 import { supabase, handleSupabaseError } from '@/lib/supabase';
 import { Table } from '@/utils/types';
-import { useAuth } from '@/contexts/AuthContext';
+import { authContextValue } from '@/contexts/AuthContext';
 
 export const fetchTables = async (): Promise<Table[]> => {
   try {
-    const { currentUser, currentCafe } = useAuth();
+    const { currentCafe } = authContextValue;
     
     if (!currentCafe) {
       console.error('No cafe selected');
@@ -43,7 +43,7 @@ export const fetchTable = async (id: string): Promise<Table | null> => {
 
 export const createTable = async (tableData: Omit<Table, 'id'>): Promise<Table | null> => {
   try {
-    const { currentUser, currentCafe } = useAuth();
+    const { currentUser, currentCafe } = authContextValue;
     
     if (!currentCafe) {
       console.error('No cafe selected');

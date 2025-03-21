@@ -25,7 +25,7 @@ const defaultAuthContext: AuthContextType = {
 const AuthContext = createContext<AuthContextType>(defaultAuthContext);
 
 // Create a static instance of the context that can be imported directly
-let authContextValue = defaultAuthContext;
+export let authContextValue = defaultAuthContext;
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -42,6 +42,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentCafe, setCurrentCafe] = useState<Cafe | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Load user on initial mount
+    refreshUser();
+  }, []);
 
   const refreshUser = async () => {
     setIsLoading(true);
