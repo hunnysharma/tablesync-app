@@ -12,16 +12,31 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({
+// Create a default context with actual values
+const defaultAuthContext: AuthContextType = {
   currentUser: null,
   currentCafe: null,
   isAuthenticated: false,
   isLoading: true,
   refreshUser: async () => {},
   logout: async () => {},
-});
+};
 
-export const useAuth = () => useContext(AuthContext);
+const AuthContext = createContext<AuthContextType>(defaultAuthContext);
+
+// Create a static instance of the context that can be imported directly
+let authContextValue = defaultAuthContext;
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  // If we're outside of the provider, return the static instance
+  return context || authContextValue;
+};
+
+// Update the static instance whenever the context value changes
+export const updateAuthContextValue = (value: AuthContextType) => {
+  authContextValue = value;
+};
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -51,10 +66,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setCurrentCafe(null);
   };
 
-  useEffect(() => {
-    refreshUser();
-  }, []);
-
   const value = {
     currentUser,
     currentCafe,
@@ -63,6 +74,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     refreshUser,
     logout,
   };
+  
+  // Update the static instance whenever the context value changes
+  updateAuthContextValue(value);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

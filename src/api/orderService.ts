@@ -2,12 +2,21 @@
 import { supabase, handleSupabaseError } from '@/lib/supabase';
 import { Order, OrderItem } from '@/utils/types';
 import { createBill } from './billService';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const fetchOrders = async (): Promise<Order[]> => {
   try {
+    const { currentCafe } = useAuth();
+    
+    if (!currentCafe) {
+      console.error('No cafe selected');
+      return [];
+    }
+    
     const { data, error } = await supabase
       .from('orders')
-      .select('*, items:order_items(*)');
+      .select('*, items:order_items(*)')
+      .eq('cafe_id', currentCafe.id);
     
     if (error) throw error;
     
@@ -48,6 +57,13 @@ export const fetchOrder = async (id: string): Promise<Order | null> => {
 
 export const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>): Promise<Order | null> => {
   try {
+    const { currentUser, currentCafe } = useAuth();
+    
+    if (!currentCafe) {
+      console.error('No cafe selected');
+      return null;
+    }
+    
     const { items, ...orderDetails } = orderData;
     
     // First create the order
@@ -55,6 +71,8 @@ export const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'u
       .from('orders')
       .insert([{
         ...orderDetails,
+        cafe_id: currentCafe.id,
+        user_id: currentUser?.id,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }])
@@ -68,8 +86,8 @@ export const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'u
     // Then create the order items
     const orderItems = items.map(item => ({
       order_id: order.id,
-      menu_item_id: item.menuItemId,
-      menu_item_name: item.menuItemName,
+      menu_item_id: item.menu_item_id,
+      menu_item_name: item.menu_item_name,
       quantity: item.quantity,
       price: item.price,
       notes: item.notes || null,
@@ -89,7 +107,7 @@ export const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'u
         status: 'occupied',
         current_order_id: order.id,
       })
-      .eq('id', orderDetails.tableId);
+      .eq('id', orderDetails.table_id);
     
     if (tableError) throw tableError;
     
@@ -135,7 +153,7 @@ export const updateOrder = async (id: string, orderData: Partial<Order>): Promis
           status: 'available',
           current_order_id: null,
         })
-        .eq('id', order.tableId);
+        .eq('id', order.table_id);
       
       if (tableError) throw tableError;
     }
@@ -169,8 +187,8 @@ export const updateOrderItemStatus = async (
     
     return {
       id: data.id,
-      menuItemId: data.menu_item_id,
-      menuItemName: data.menu_item_name,
+      menu_item_id: data.menu_item_id,
+      menu_item_name: data.menu_item_name,
       quantity: data.quantity,
       price: data.price || 0,
       notes: data.notes || undefined,

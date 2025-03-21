@@ -1,12 +1,21 @@
 
 import { supabase, handleSupabaseError } from '@/lib/supabase';
 import { MenuItem, Category } from '@/utils/types';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const fetchMenuItems = async (): Promise<MenuItem[]> => {
   try {
+    const { currentCafe } = useAuth();
+    
+    if (!currentCafe) {
+      console.error('No cafe selected');
+      return [];
+    }
+    
     const { data, error } = await supabase
       .from('menu_items')
-      .select('*');
+      .select('*')
+      .eq('cafe_id', currentCafe.id);
     
     if (error) throw error;
     return data || [];
@@ -18,9 +27,17 @@ export const fetchMenuItems = async (): Promise<MenuItem[]> => {
 
 export const fetchCategories = async (): Promise<Category[]> => {
   try {
+    const { currentCafe } = useAuth();
+    
+    if (!currentCafe) {
+      console.error('No cafe selected');
+      return [];
+    }
+    
     const { data, error } = await supabase
       .from('categories')
-      .select('*');
+      .select('*')
+      .eq('cafe_id', currentCafe.id);
     
     if (error) throw error;
     return data || [];
@@ -32,9 +49,22 @@ export const fetchCategories = async (): Promise<Category[]> => {
 
 export const createMenuItem = async (itemData: Omit<MenuItem, 'id'>): Promise<MenuItem | null> => {
   try {
+    const { currentUser, currentCafe } = useAuth();
+    
+    if (!currentCafe) {
+      console.error('No cafe selected');
+      return null;
+    }
+    
+    const itemWithIds = {
+      ...itemData,
+      cafe_id: currentCafe.id,
+      user_id: currentUser?.id
+    };
+    
     const { data, error } = await supabase
       .from('menu_items')
-      .insert([itemData])
+      .insert([itemWithIds])
       .select()
       .single();
     
@@ -80,9 +110,22 @@ export const deleteMenuItem = async (id: string): Promise<boolean> => {
 
 export const createCategory = async (categoryData: Omit<Category, 'id'>): Promise<Category | null> => {
   try {
+    const { currentUser, currentCafe } = useAuth();
+    
+    if (!currentCafe) {
+      console.error('No cafe selected');
+      return null;
+    }
+    
+    const categoryWithIds = {
+      ...categoryData,
+      cafe_id: currentCafe.id,
+      user_id: currentUser?.id
+    };
+    
     const { data, error } = await supabase
       .from('categories')
-      .insert([categoryData])
+      .insert([categoryWithIds])
       .select()
       .single();
     
