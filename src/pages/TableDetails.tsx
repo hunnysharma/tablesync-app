@@ -160,7 +160,7 @@ const TableDetails = () => {
                       ))}
                       <div className="flex justify-between pt-2 mt-2 border-t">
                         <span className="font-medium">Total:</span>
-                        <span className="font-medium">${currentOrder.total.toFixed(2)}</span>
+                        <span className="font-medium">₹{currentOrder.total.toFixed(2)}</span>
                       </div>
                       <Button
                         className="w-full mt-2"

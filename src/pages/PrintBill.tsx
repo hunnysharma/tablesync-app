@@ -113,10 +113,10 @@ const PrintBill = () => {
               <tbody>
                 {bill.items.map((item, index) => (
                   <tr key={index} className="border-b border-gray-200">
-                    <td className="py-2">{item.menuItemName}</td>
-                    <td className="py-2 text-center">{item.quantity}</td>
-                    <td className="py-2 text-right">${item.price.toFixed(2)}</td>
-                    <td className="py-2 text-right">${(item.quantity * item.price).toFixed(2)}</td>
+                    <td className="py-2">{item.menu_item_name}</td>
+                    <td className="py-2 text-center">₹{item.quantity}</td>
+                    <td className="py-2 text-right">₹{item.price.toFixed(2)}</td>
+                    <td className="py-2 text-right">₹{(item.quantity * item.price).toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -126,20 +126,20 @@ const PrintBill = () => {
           <div className="border-t border-gray-300 pt-4">
             <div className="flex justify-between">
               <span className="font-medium">Subtotal:</span>
-              <span>${bill.subtotal.toFixed(2)}</span>
+              <span>₹{bill.subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between my-2">
               <span className="font-medium">Tax:</span>
-              <span>${bill.tax.toFixed(2)}</span>
+              <span>₹{bill.tax.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-lg font-bold mt-2 pt-2 border-t border-gray-300">
               <span>Total:</span>
-              <span>${bill.total.toFixed(2)}</span>
+              <span>₹{bill.total.toFixed(2)}</span>
             </div>
           </div>
           
           <div className="mt-8 pt-6 border-t border-gray-300 text-center text-sm text-muted-foreground">
-            <p>Payment Method: {bill.paymentMethod ? bill.paymentMethod.toUpperCase() : 'PENDING'}</p>
+            <p>Payment Method: {bill.payment_method ? bill.payment_method.toUpperCase() : 'PENDING'}</p>
             {bill.paidAt && <p>Paid on: {formatDate(bill.paidAt)}</p>}
             <p className="mt-4">Thank you for your visit!</p>
           </div>

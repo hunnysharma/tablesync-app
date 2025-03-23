@@ -79,7 +79,7 @@ const Dashboard = () => {
     },
     {
       title: 'Today\'s Sales',
-      value: `$${stats.totalSales.toFixed(2)}`,
+      value: `₹${stats.totalSales.toFixed(2)}`,
       icon: DollarSign,
       color: 'text-purple-500',
       bg: 'bg-purple-500/10'

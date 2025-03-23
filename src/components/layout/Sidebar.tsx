@@ -116,7 +116,7 @@ export function Sidebar() {
       </div>
       
       <div className="p-4 border-t border-border/40 text-xs text-muted-foreground text-center">
-        {!collapsed ? "RestroLive © 2023" : "©"}
+        {!collapsed ? "RestroLive © 2025" : "©"}
       </div>
     </aside>
   );

@@ -29,15 +29,15 @@ export function OrderForm({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [notes, setNotes] = useState<string>('');
   
-  const categories = ['all', ...new Set(menuItems.map(item => item.categoryId))];
+  const categories = ['all', ...new Set(menuItems.map(item => item.category_id))];
   
   const addItem = (menuItem: MenuItem) => {
-    const existingItem = items.find(item => item.menuItemId === menuItem.id);
+    const existingItem = items.find(item => item.menu_item_id === menuItem.id);
     
     if (existingItem) {
       // Increase quantity if item already exists
       setItems(items.map(item => 
-        item.menuItemId === menuItem.id 
+        item.menu_item_id === menuItem.id 
           ? { ...item, quantity: item.quantity + 1 }
           : item
       ));
@@ -45,8 +45,8 @@ export function OrderForm({
       // Add new item
       const newItem: OrderItem = {
         id: uuidv4(),
-        menuItemId: menuItem.id,
-        menuItemName: menuItem.name,
+        menu_item_id: menuItem.id,
+        menu_item_name: menuItem.name,
         quantity: 1,
         price: menuItem.price,
         status: 'pending'
@@ -87,7 +87,7 @@ export function OrderForm({
   
   const filteredMenuItems = selectedCategory === 'all'
     ? menuItems
-    : menuItems.filter(item => item.categoryId === selectedCategory);
+    : menuItems.filter(item => item.category_id === selectedCategory);
   
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -98,7 +98,7 @@ export function OrderForm({
           {categories.map(catId => {
             const category = catId === 'all' 
               ? { id: 'all', name: 'All' } 
-              : { id: catId, name: menuItems.find(item => item.categoryId === catId)?.categoryId || catId };
+              : { id: catId, name: menuItems.find(item => item.category_id === catId)?.category_id || catId };
             
             return (
               <Button
@@ -129,7 +129,7 @@ export function OrderForm({
                       {item.description}
                     </p>
                   </div>
-                  <span className="font-medium">${item.price.toFixed(2)}</span>
+                  <span className="font-medium">₹{item.price.toFixed(2)}</span>
                 </div>
               </CardContent>
             </Card>
@@ -173,15 +173,15 @@ export function OrderForm({
             <div className="mt-6 pt-4 border-t border-border/40">
               <div className="flex justify-between text-sm mb-2">
                 <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>₹{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm mb-2">
                 <span>Tax (10%)</span>
-                <span>${(subtotal * 0.1).toFixed(2)}</span>
+                <span>₹{(subtotal * 0.1).toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-medium mt-4 pt-2 border-t border-border/40">
                 <span>Total</span>
-                <span>${(subtotal * 1.1).toFixed(2)}</span>
+                <span>₹{(subtotal * 1.1).toFixed(2)}</span>
               </div>
             </div>
           </CardContent>

@@ -169,15 +169,15 @@ const OrderDetails = () => {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>${order.subtotal.toFixed(2)}</span>
+                  <span>₹{order.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Tax</span>
-                  <span>${order.tax.toFixed(2)}</span>
+                  <span>₹{order.tax.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between font-bold pt-2 border-t">
                   <span>Total</span>
-                  <span>${order.total.toFixed(2)}</span>
+                  <span>₹{order.total.toFixed(2)}</span>
                 </div>
                 
                 <div className="pt-4 border-t mt-4">

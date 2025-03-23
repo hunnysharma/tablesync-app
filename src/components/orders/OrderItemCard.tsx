@@ -12,7 +12,7 @@ export function OrderItemCard({ item, onRemove }: OrderItemCardProps) {
     <div className="flex items-center justify-between p-3 border rounded-md bg-background">
       <div className="flex-1">
         <div className="flex items-center justify-between">
-          <span className="font-medium">{item.menuItemName}</span>
+          <span className="font-medium">{item.menu_item_name}</span>
           <Button
             variant="ghost"
             size="sm"
@@ -23,7 +23,7 @@ export function OrderItemCard({ item, onRemove }: OrderItemCardProps) {
           </Button>
         </div>
         <div className="text-sm text-muted-foreground">
-          Qty: {item.quantity} × ${item.price.toFixed(2)}
+          Qty: {item.quantity} × ₹{item.price.toFixed(2)}
         </div>
         {item.notes && (
           <div className="text-xs italic mt-1">{item.notes}</div>

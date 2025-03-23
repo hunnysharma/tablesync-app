@@ -43,7 +43,7 @@ const BillDetails = () => {
     try {
       const updatedBill = await updateBill(bill.id, {
         payment_status: 'paid',
-        paymentMethod: 'card', // Default to card payment
+        payment_method: 'card', // Default to card payment
         paidAt: new Date()
       });
       
@@ -144,15 +144,15 @@ const BillDetails = () => {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>${bill.subtotal.toFixed(2)}</span>
+                  <span>₹{bill.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Tax</span>
-                  <span>${bill.tax.toFixed(2)}</span>
+                  <span>₹{bill.tax.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between font-bold pt-2 border-t">
                   <span>Total</span>
-                  <span>${bill.total.toFixed(2)}</span>
+                  <span>₹{bill.total.toFixed(2)}</span>
                 </div>
                 
                 <div className="pt-4 border-t mt-4">
@@ -160,11 +160,11 @@ const BillDetails = () => {
                     <span className="text-muted-foreground">Bill #:</span> {bill.id.substring(0, 8)}
                   </p>
                   <p className="text-sm mb-1">
-                    <span className="text-muted-foreground">Order #:</span> {bill.orderId.substring(0, 8)}
+                    <span className="text-muted-foreground">Order #:</span> {bill.order_id.substring(0, 8)}
                   </p>
-                  {bill.paymentMethod && (
+                  {bill.payment_method && (
                     <p className="text-sm text-muted-foreground">
-                      Payment Method: <span className="capitalize">{bill.paymentMethod}</span>
+                      Payment Method: <span className="capitalize">{bill.payment_method}</span>
                     </p>
                   )}
                 </div>

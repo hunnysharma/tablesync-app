@@ -1,11 +1,11 @@
 
 import { supabase, handleSupabaseError } from '@/lib/supabase';
 import { Bill, OrderItem } from '@/utils/types';
-import { useAuth } from '@/contexts/AuthContext';
+import { authContextValue } from '@/contexts/AuthContext';
 
 export const fetchBills = async (): Promise<Bill[]> => {
   try {
-    const { currentCafe } = useAuth();
+    const { currentCafe } = authContextValue;
     
     if (!currentCafe) {
       console.error('No cafe selected');
@@ -16,7 +16,7 @@ export const fetchBills = async (): Promise<Bill[]> => {
     const { data: bills, error: billsError } = await supabase
       .from('bills')
       .select('*')
-      .eq('cafe_id', currentCafe.id);
+      .eq('cafe_id', currentCafe.cafe_id);
     
     if (billsError) throw billsError;
 
@@ -172,7 +172,7 @@ export const updateBill = async (id: string, billData: Partial<Bill>): Promise<B
 
 export const createBill = async (orderId: string): Promise<Bill | null> => {
   try {
-    const { currentUser, currentCafe } = useAuth();
+    const { currentUser, currentCafe } = authContextValue;
     
     if (!currentCafe) {
       console.error('No cafe selected');
@@ -200,7 +200,7 @@ export const createBill = async (orderId: string): Promise<Bill | null> => {
         total: order.total,
         payment_status: 'pending',
         created_at: new Date().toISOString(),
-        cafe_id: currentCafe.id,
+        cafe_id: currentCafe.cafe_id,
         user_id: currentUser?.id
       }])
       .select()

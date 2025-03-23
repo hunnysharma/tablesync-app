@@ -24,7 +24,9 @@ export interface MenuItem {
   name: string;
   description?: string;
   price: number;
-  categoryId: string;
+  price_half: number;
+  price_full: number;
+  category_id: string;
   image?: string;
   available: boolean;
   cafe_id: string;

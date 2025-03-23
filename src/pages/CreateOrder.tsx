@@ -33,8 +33,8 @@ const orderSchema = z.object({
   items: z.array(
     z.object({
       id: z.string().min(1),
-      menuItemId: z.string().min(1),
-      menuItemName: z.string().min(1),
+      menu_item_id: z.string().min(1),
+      menu_item_name: z.string().min(1),
       quantity: z.number().min(1),
       price: z.number().min(0),
       notes: z.string().optional(),
@@ -87,8 +87,8 @@ const CreateOrder = () => {
   const handleAddItem = (item: MenuItem, quantity: number, notes: string) => {
     const newItem: OrderItem = {
       id: uuidv4(),
-      menuItemId: item.id,
-      menuItemName: item.name,
+      menu_item_id: item.id,
+      menu_item_name: item.name,
       quantity,
       price: item.price,
       notes,

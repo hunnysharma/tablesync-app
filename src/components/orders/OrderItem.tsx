@@ -63,7 +63,7 @@ export function OrderItemComponent({
             )}
           </div>
           <span className="font-medium ml-2">
-            ${((item.price || 0) * item.quantity).toFixed(2)}
+            ₹{((item.price || 0) * item.quantity).toFixed(2)}
           </span>
         </div>
         
@@ -111,7 +111,7 @@ export function OrderItemComponent({
           ) : (
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm text-muted-foreground">
-                {item.quantity} × ${(item.price || 0).toFixed(2)}
+                {item.quantity} × ₹{(item.price || 0).toFixed(2)}
               </span>
               
               {canChangeStatus ? (

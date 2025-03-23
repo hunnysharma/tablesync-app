@@ -40,12 +40,12 @@ export function MenuItemPicker({ menuItems, onAddItem }: MenuItemPickerProps) {
   };
 
   // Extract unique categories
-  const categories = ['all', ...new Set(menuItems.map(item => item.categoryId))];
+  const categories = ['all', ...new Set(menuItems.map(item => item.category_id))];
   
   // Filter items by category
   const filteredItems = selectedCategory === 'all' 
     ? menuItems 
-    : menuItems.filter(item => item.categoryId === selectedCategory);
+    : menuItems.filter(item => item.category_id === selectedCategory);
 
   return (
     <Card className="p-6">
@@ -55,7 +55,7 @@ export function MenuItemPicker({ menuItems, onAddItem }: MenuItemPickerProps) {
         {categories.map(catId => {
           const category = catId === 'all' 
             ? { id: 'all', name: 'All' } 
-            : { id: catId, name: menuItems.find(item => item.categoryId === catId)?.categoryId || catId };
+            : { id: catId, name: menuItems.find(item => item.category_id === catId)?.name || catId };
           
           return (
             <Button
@@ -79,7 +79,7 @@ export function MenuItemPicker({ menuItems, onAddItem }: MenuItemPickerProps) {
             <div key={item.id} className="border rounded-md p-3">
               <div className="font-medium">{item.name}</div>
               <div className="text-sm text-muted-foreground mt-1">{item.description}</div>
-              <div className="text-sm font-medium mt-1">${item.price.toFixed(2)}</div>
+              <div className="text-sm font-medium mt-1">₹{item.price && item.price.toFixed(2)}</div>
               <div className="mt-2 space-y-2">
                 <div className="flex space-x-2">
                   <Input 

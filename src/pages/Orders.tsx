@@ -136,7 +136,7 @@ const Orders = () => {
                   
                   <div className="flex items-center gap-4 ml-auto">
                     <div className="text-right">
-                      <div className="font-medium">${order.total.toFixed(2)}</div>
+                      <div className="font-medium">₹{order.total.toFixed(2)}</div>
                       <div className="text-xs text-muted-foreground">
                         {order.payment_status === 'paid' ? 'Paid' : 'Unpaid'}
                       </div>

@@ -52,7 +52,7 @@ export const createTable = async (tableData: Omit<Table, 'id'>): Promise<Table |
     
     const tableWithIds = {
       ...tableData,
-      cafe_id: currentCafe.id,
+      cafe_id: currentCafe.cafe_id,
       user_id: currentUser?.id
     };
     

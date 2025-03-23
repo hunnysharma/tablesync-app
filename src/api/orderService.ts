@@ -2,11 +2,11 @@
 import { supabase, handleSupabaseError } from '@/lib/supabase';
 import { Order, OrderItem } from '@/utils/types';
 import { createBill } from './billService';
-import { useAuth } from '@/contexts/AuthContext';
+import { authContextValue } from '@/contexts/AuthContext';
 
 export const fetchOrders = async (): Promise<Order[]> => {
   try {
-    const { currentCafe } = useAuth();
+    const { currentCafe } = authContextValue;
     
     if (!currentCafe) {
       console.error('No cafe selected');
@@ -16,7 +16,7 @@ export const fetchOrders = async (): Promise<Order[]> => {
     const { data, error } = await supabase
       .from('orders')
       .select('*, items:order_items(*)')
-      .eq('cafe_id', currentCafe.id);
+      .eq('cafe_id', currentCafe.cafe_id);
     
     if (error) throw error;
     
@@ -57,7 +57,7 @@ export const fetchOrder = async (id: string): Promise<Order | null> => {
 
 export const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>): Promise<Order | null> => {
   try {
-    const { currentUser, currentCafe } = useAuth();
+    const { currentUser, currentCafe } = authContextValue;
     
     if (!currentCafe) {
       console.error('No cafe selected');
@@ -71,7 +71,7 @@ export const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'u
       .from('orders')
       .insert([{
         ...orderDetails,
-        cafe_id: currentCafe.id,
+        cafe_id: currentCafe.cafe_id,
         user_id: currentUser?.id,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

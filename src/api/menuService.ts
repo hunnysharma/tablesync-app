@@ -1,11 +1,11 @@
 
 import { supabase, handleSupabaseError } from '@/lib/supabase';
 import { MenuItem, Category } from '@/utils/types';
-import { useAuth } from '@/contexts/AuthContext';
+import { authContextValue } from '@/contexts/AuthContext';
 
 export const fetchMenuItems = async (): Promise<MenuItem[]> => {
   try {
-    const { currentCafe } = useAuth();
+    const { currentCafe } = authContextValue;
     
     if (!currentCafe) {
       console.error('No cafe selected');
@@ -15,7 +15,7 @@ export const fetchMenuItems = async (): Promise<MenuItem[]> => {
     const { data, error } = await supabase
       .from('menu_items')
       .select('*')
-      .eq('cafe_id', currentCafe.id);
+      .eq('cafe_id', currentCafe.cafe_id);
     
     if (error) throw error;
     return data || [];
@@ -27,7 +27,7 @@ export const fetchMenuItems = async (): Promise<MenuItem[]> => {
 
 export const fetchCategories = async (): Promise<Category[]> => {
   try {
-    const { currentCafe } = useAuth();
+    const { currentCafe } = authContextValue
     
     if (!currentCafe) {
       console.error('No cafe selected');
@@ -37,7 +37,7 @@ export const fetchCategories = async (): Promise<Category[]> => {
     const { data, error } = await supabase
       .from('categories')
       .select('*')
-      .eq('cafe_id', currentCafe.id);
+      .eq('cafe_id', currentCafe.cafe_id);
     
     if (error) throw error;
     return data || [];
@@ -49,7 +49,7 @@ export const fetchCategories = async (): Promise<Category[]> => {
 
 export const createMenuItem = async (itemData: Omit<MenuItem, 'id'>): Promise<MenuItem | null> => {
   try {
-    const { currentUser, currentCafe } = useAuth();
+    const { currentUser, currentCafe } = authContextValue
     
     if (!currentCafe) {
       console.error('No cafe selected');
@@ -58,7 +58,7 @@ export const createMenuItem = async (itemData: Omit<MenuItem, 'id'>): Promise<Me
     
     const itemWithIds = {
       ...itemData,
-      cafe_id: currentCafe.id,
+      cafe_id: currentCafe.cafe_id,
       user_id: currentUser?.id
     };
     
@@ -110,7 +110,7 @@ export const deleteMenuItem = async (id: string): Promise<boolean> => {
 
 export const createCategory = async (categoryData: Omit<Category, 'id'>): Promise<Category | null> => {
   try {
-    const { currentUser, currentCafe } = useAuth();
+    const { currentUser, currentCafe } = authContextValue
     
     if (!currentCafe) {
       console.error('No cafe selected');
@@ -119,7 +119,7 @@ export const createCategory = async (categoryData: Omit<Category, 'id'>): Promis
     
     const categoryWithIds = {
       ...categoryData,
-      cafe_id: currentCafe.id,
+      cafe_id: currentCafe.cafe_id,
       user_id: currentUser?.id
     };
     

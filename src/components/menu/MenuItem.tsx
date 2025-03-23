@@ -16,16 +16,16 @@ export function MenuItem({ item, onAddToOrder, showAddButton = false }: MenuItem
   return (
     <Card className={cn(
       "overflow-hidden transition-all duration-200 animate-scale-in",
-      "hover:shadow-md", 
+      "hover:shadow-md",
       !item.available && "opacity-70"
     )}>
       <CardContent className="p-0">
         <div className="flex flex-col sm:flex-row h-full">
           {item.image ? (
             <div className="sm:w-1/3 h-24 sm:h-auto bg-muted">
-              <img 
-                src={item.image} 
-                alt={item.name} 
+              <img
+                src={item.image}
+                alt={item.name}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -34,7 +34,7 @@ export function MenuItem({ item, onAddToOrder, showAddButton = false }: MenuItem
               No image
             </div>
           )}
-          
+
           <div className="p-4 sm:w-2/3 flex flex-col">
             <div className="flex justify-between items-start mb-2">
               <div>
@@ -45,17 +45,32 @@ export function MenuItem({ item, onAddToOrder, showAddButton = false }: MenuItem
                   </Badge>
                 )}
               </div>
-              <span className="font-medium">${item.price.toFixed(2)}</span>
+              {
+                item.price ? (
+                  <span className="font-medium">₹{item.price.toFixed(2)}</span>
+                ) : item.price_half && item.price_full ? (
+                  <div>
+                    <div>
+                      <span>half: ₹{item.price_half.toFixed(2)}</span>
+                    </div>
+                    <div>
+                      <span>full: ₹{item.price_full.toFixed(2)}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <span>As per MRP</span>
+                )
+              }
             </div>
-            
+
             {item.description && (
               <p className="text-sm text-muted-foreground mb-auto line-clamp-2">
                 {item.description}
               </p>
             )}
-            
+
             {showAddButton && item.available && (
-              <Button 
+              <Button
                 onClick={() => onAddToOrder?.(item)}
                 size="sm"
                 className="mt-3 self-end"

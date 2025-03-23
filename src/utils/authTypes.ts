@@ -1,6 +1,8 @@
+import { UUID } from "crypto";
 
 export interface Cafe {
   id: string;
+  cafe_id: UUID;
   name: string;
   address?: string;
   logo?: string;

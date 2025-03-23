@@ -31,7 +31,7 @@ const Menu = () => {
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
     
     // Filter by category
-    const matchesCategory = categoryFilter === 'all' || item.categoryId === categoryFilter;
+    const matchesCategory = categoryFilter === 'all' || item.category_id === categoryFilter;
     
     // Filter by availability
     const matchesAvailability = 
@@ -160,7 +160,7 @@ const Menu = () => {
                     <p className="text-muted-foreground text-sm mt-1">{category.description}</p>
                   )}
                   <p className="text-sm mt-2">
-                    {menuItems.filter(item => item.categoryId === category.id).length} items
+                    {menuItems.filter(item => item.category_id === category.id).length} items
                   </p>
                 </div>
               ))}
