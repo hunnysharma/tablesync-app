@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -18,6 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { supabase } from '@/lib/supabase';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -42,17 +42,42 @@ const Login = () => {
     setIsLoading(true);
     try {
       const user = await loginUser(values.email, values.password);
-      
       if (user) {
         toast.success('Login successful!');
         navigate('/');
+      } else {
+        toast.error('Login failed: No user returned');
       }
     } catch (error) {
-      console.error(error);
+      console.error('Login error:', error);
+      toast.error('Login failed: ' + (error.message || 'Unknown error'));
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Check auth state on mount and after login
+  useEffect(() => {
+    // Check initial session without throwing unhandled error
+    const checkInitialSession = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+      } else if (data.session) {
+        navigate('/'); // Redirect if already logged in
+      }
+    };
+    checkInitialSession();
+
+    // Listen for auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        toast.success('Login successful!');
+        navigate('/');
+      }
+    });
+
+    return () => authListener.subscription.unsubscribe();
+  }, [navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/50 p-4">
