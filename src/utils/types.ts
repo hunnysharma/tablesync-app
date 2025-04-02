@@ -49,8 +49,8 @@ export interface Order {
   table_number: number;
   items: OrderItem[];
   status: 'active' | 'completed' | 'cancelled';
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
   subtotal: number;
   tax: number;
   total: number;
@@ -70,8 +70,8 @@ export interface Bill {
   total: number;
   payment_status: 'pending' | 'paid';
   payment_method?: 'cash' | 'card' | 'upi';
-  createdAt: Date;
-  paidAt?: Date;
+  created_at: Date;
+  paid_at?: Date;
   cafe_id: string;
   user_id?: string;
 }
